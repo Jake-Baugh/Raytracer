@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ObjLoader.cpp" />
+    <ClCompile Include="Intersections.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ManagementCB.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ManagementD3D.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ManagementLight.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ManagementShader.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ManagementSS.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="ManagementTex.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Rays.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="Raytracer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="InputDesc.h" />
+    <ClInclude Include="KeyCodes.h" />
+    <ClInclude Include="ObjLoader.h" />
+    <ClInclude Include="Utility.h" />
+    <ClInclude Include="CBDesc.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="LightDesc.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Intersections.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ManagementCB.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ManagementD3D.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ManagementLight.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ManagementShader.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ManagementSS.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="ManagementTex.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Rays.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="TexIds.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Window.h">
+      <Filter>Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="Raytracer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Renderer">
+      <UniqueIdentifier>{dc30b3f1-1a15-4bb7-9269-1fb01a30ec96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Window">
+      <UniqueIdentifier>{a90f2454-da5b-449e-9fde-09f8096e24ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{74eea0ff-8946-4a0e-8937-939d5427b85a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{301b12e5-3fbe-4a1b-bb13-06c492e79882}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\constantBuffers.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\csColorStage.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\csIntersectionStage.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\csPrimaryRayStage.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\intersect.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\structs.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\utility.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>
