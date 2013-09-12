@@ -45,7 +45,7 @@ void main( uint3 threadID : SV_DispatchThreadID, uint groupID : SV_GroupID )
 		}
 		if(!intersect)
 		{
-			bestIntersection.m_triangleId = -1;
+			bestIntersection.m_triangleId = -2;
 			rays[index].m_triangleId = -2;
 		}
 	}

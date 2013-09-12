@@ -43,12 +43,13 @@ float3 pointLight(float3 normal, float3 position, float4 diffuse, float4 specula
 
 void reflectRay(uint index, float3 position, float3 normal, int triangleId )
 {
-	Ray ray			 = rays[index];
-	ray.m_origin	 = position;
-	ray.m_direction  = reflect(ray.m_direction, normal);
-	ray.m_direction	 = normalize(ray.m_direction);
-	ray.m_triangleId = triangleId;
-	rays[index]		 = ray;
+	Ray ray					= rays[index];
+	ray.m_origin			= position;
+	ray.m_direction			= reflect(ray.m_direction, normal);
+	ray.m_direction			= normalize(ray.m_direction);
+	ray.m_triangleId		= triangleId;
+	ray.m_reflectiveFactor *= 0.3f;
+	rays[index]				= ray;
 }
 
 [numthreads(32, 32, 1)]
@@ -62,28 +63,33 @@ void main( uint3 threadID : SV_DispatchThreadID, uint groupID : SV_GroupID )
 	Vertex vertexB;
 	Vertex vertexC;
 
-	float4 color = float4(0.0f, 0.0f, 0.0f, 1.0f);
-	float3 litColor = float3(0.0f, 0.0f, 0.0f);
+	float4 color				= float4(0.0f, 0.0f, 0.0f, 1.0f);
+	float3 litColor				= float3(0.0f, 0.0f, 0.0f);
+	float2 barCoord				= float2(0.0f, 0.0f);
+	float3 intersectPosition	= float3(0.0f, 0.0f, 0.0f);
+	float3 intersectNormal		= float3(0.0f, 0.0f, 0.0f);
+	float2 intersectTexture		= float2(0.0f, 0.0f);
+
 	if(intersection.m_triangleId >= 0)
 	{
 		vertexA = vertices[intersection.m_triangleId];
 		vertexB = vertices[intersection.m_triangleId+1];
 		vertexC = vertices[intersection.m_triangleId+2];
 
-		float2 barCoord = intersection.m_barCoord;
+		barCoord = intersection.m_barCoord;
 
-		float3 intersectPosition =	(1 - barCoord.x - barCoord.y) * vertexA.m_position +
-									barCoord.x * vertexB.m_position +
-									barCoord.y * vertexC.m_position;
-		float3 intersectNormal =	(1 - barCoord.x - barCoord.y) * vertexA.m_normal +
-									barCoord.x * vertexB.m_normal +
-									barCoord.y * vertexC.m_normal;
-		float2 intersectTexture =	(1 - barCoord.x - barCoord.y) * vertexA.m_texCoord +
-									barCoord.x * vertexB.m_texCoord +
+		intersectPosition =	(1 - barCoord.x - barCoord.y) * vertexA.m_position +
+							barCoord.x * vertexB.m_position +
+							barCoord.y * vertexC.m_position;
+		intersectNormal =	(1 - barCoord.x - barCoord.y) * vertexA.m_normal +
+							barCoord.x * vertexB.m_normal +
+							barCoord.y * vertexC.m_normal;
+		intersectTexture =	(1 - barCoord.x - barCoord.y) * vertexA.m_texCoord +
+										barCoord.x * vertexB.m_texCoord +
 									barCoord.y * vertexC.m_texCoord;
 		intersectNormal = normalize(intersectNormal);
 
-		reflectRay(index, intersectPosition, intersectNormal, intersection.m_triangleId);
+		//reflectRay(index, intersectPosition, intersectNormal, intersection.m_triangleId);
 
 		color			= texCube.SampleLevel(ssDefault, intersectTexture, 0);
 		float4 diffuse	= float4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -130,6 +136,8 @@ void main( uint3 threadID : SV_DispatchThreadID, uint groupID : SV_GroupID )
 		}
 	}
 	
-	accumulation[index] += color * float4(litColor, 1.0f);
+	accumulation[index] += color * float4(litColor, 1.0f) * float4(rays[index].m_reflectiveFactor, 1.0f);
+	reflectRay(index, intersectPosition, intersectNormal, intersection.m_triangleId);
+
 	output[threadID.xy] = accumulation[index];
 }
