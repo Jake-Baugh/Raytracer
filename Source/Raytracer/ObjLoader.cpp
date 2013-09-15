@@ -3,6 +3,21 @@
 
 ObjLoader::ObjLoader()
 {
+	m_ambient	= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_diffuse	= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	m_specular	= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	m_specularCoefficient	= 0.0f;
+	m_transparency			= 0.0f;
+
+	m_ambientTexName			= L"Unknown";
+	m_diffuseTexName			= L"Unknown";
+	m_specularTexName			= L"Unknown";
+	m_specularHighlightTexName	= L"Unknown";
+	m_alphaTexName				= L"Unknown";
+	m_bumpMapName				= L"Unknown";
+	m_displacementMapName		= L"Unknown";
+	m_stencilDecalMapName		= L"Unknown";
 }
 ObjLoader::~ObjLoader()
 {
@@ -39,7 +54,7 @@ void ObjLoader::loadObj(std::string p_fileName)
 			else if(id == "f")
 				parseFace(infile);
 			else if(id == "mtllib")
-				parseMaterial(infile);
+				parseMtlFile(infile);
 		}
 	}
 	else
@@ -54,21 +69,15 @@ void ObjLoader::loadObj(std::string p_fileName)
 
 void ObjLoader::parsePosition(std::fstream& p_infile)
 {
-	float x, y, z;
-	p_infile >> x >> y >> z;
-	m_positions.push_back(DirectX::XMFLOAT3(x, y, z));
+	m_positions.push_back(readFloat3(p_infile));
 }
 void ObjLoader::parseNormal(std::fstream& p_infile)
 {
-	float x, y, z;
-	p_infile >> x >> y >> z;
-	m_normals.push_back(DirectX::XMFLOAT3(x, y, z));
+	m_normals.push_back(readFloat3(p_infile));
 }
 void ObjLoader::parseTexCoord(std::fstream& p_infile)
 {
-	float u, v;
-	p_infile >> u >> v;
-	m_texCoords.push_back(DirectX::XMFLOAT2(u, v));
+	m_texCoords.push_back(readFloat2(p_infile));
 }
 void ObjLoader::parseFace(std::fstream& p_infile)
 {
@@ -97,30 +106,130 @@ void ObjLoader::parseFace(std::fstream& p_infile)
 		m_vertices.push_back(vertex);
 	}
 }
-void ObjLoader::parseMaterial(std::fstream& p_infile)
+
+void ObjLoader::parseMtlFile(std::fstream& p_infile)
 {
 	std::string mtlFilename;
 	p_infile >> mtlFilename;
 
 	std::fstream mtlFile(mtlFilename);
 
-	std::string temp;
+	std::string type;
 	std::string str;
 
 	if(mtlFile)
 	{
 		while(!mtlFile.eof())
 		{
-			temp = "unknown";
+			type = "unknown";
 
-			mtlFile >> temp;
-			if(temp == "map_Kd")
-			{
-				mtlFile >> str;
-				std::wstring str2(str.length(), L'');
-				copy(str.begin(), str.end(), str2.begin());
-				std::wstring textureFilename = str2;
-			}
+			mtlFile >> type;
+			if(type == "Ka")
+				parseAmbient(mtlFile);
+			else if(type == "Kd")
+				parseDiffuse(mtlFile);
+			else if(type == "Ks")
+				parseSpecular(mtlFile);
+			else if(type == "Ns")
+				parseSpecularCoefficient(mtlFile);
+			else if(type == "d" || type == "Tr")
+				parseTransparency(mtlFile);
+			else if(type == "map_Ka")
+				parseAmbientTex(mtlFile);
+			else if(type == "map_Kd")
+				parseDiffuseTex(mtlFile);
+			else if(type == "map_Ks")
+				parseSpecularTex(mtlFile);
+			else if(type == "map_Ns")
+				parseSpecularHighlightTex(mtlFile);
+			else if(type == "map_d")
+				parseAlphaTexture(mtlFile);
+			else if(type == "map_bump" || type == "bump")
+				parseBumpMap(mtlFile);
+			else if(type == "disp")
+				parseDisplacementMap(mtlFile);
+			else if(type == "decal")
+				parseStencilDecalMap(mtlFile);
 		}
 	}
+}
+void ObjLoader::parseAmbient(std::fstream& p_mtlFile)
+{
+	m_ambient = readFloat3(p_mtlFile);
+}
+void ObjLoader::parseDiffuse(std::fstream& p_mtlFile)
+{
+	m_diffuse = readFloat3(p_mtlFile);
+}
+void ObjLoader::parseSpecular(std::fstream& p_mtlFile)
+{
+	m_specular = readFloat3(p_mtlFile);
+}
+void ObjLoader::parseSpecularCoefficient(std::fstream& p_mtlFile)
+{
+	m_specularCoefficient = readFloat(p_mtlFile);
+}
+void ObjLoader::parseTransparency(std::fstream& p_mtlFile)
+{
+	m_transparency = readFloat(p_mtlFile);
+}
+
+void ObjLoader::parseAmbientTex(std::fstream& p_mtlFile)
+{
+	m_ambientTexName = readWString(p_mtlFile);
+}
+void ObjLoader::parseDiffuseTex(std::fstream& p_mtlFile)
+{
+	m_diffuseTexName = readWString(p_mtlFile);
+}
+void ObjLoader::parseSpecularTex(std::fstream& p_mtlFile)
+{
+	m_specularTexName = readWString(p_mtlFile);
+}
+void ObjLoader::parseSpecularHighlightTex(std::fstream& p_mtlFile)
+{
+	m_specularHighlightTexName = readWString(p_mtlFile);
+}
+void ObjLoader::parseAlphaTexture(std::fstream& p_mtlFile)
+{
+	m_alphaTexName = readWString(p_mtlFile);
+}
+void ObjLoader::parseBumpMap(std::fstream& p_mtlFile)
+{
+	m_bumpMapName = readWString(p_mtlFile);
+}
+void ObjLoader::parseDisplacementMap(std::fstream& p_mtlFile)
+{
+	m_displacementMapName = readWString(p_mtlFile); 
+}
+void ObjLoader::parseStencilDecalMap(std::fstream& p_mtlFile)
+{
+	m_stencilDecalMapName = readWString(p_mtlFile);
+}
+
+float ObjLoader::readFloat(std::fstream& p_file)
+{
+	float f;
+	p_file >> f;
+	return f;
+}
+DirectX::XMFLOAT2 ObjLoader::readFloat2(std::fstream& p_file)
+{
+	float x, y;
+	p_file >> x >> y;
+	return DirectX::XMFLOAT2(x, y);
+}
+DirectX::XMFLOAT3 ObjLoader::readFloat3(std::fstream& p_file)
+{
+	float x, y, z;
+	p_file >> x >> y >> z;
+	return DirectX::XMFLOAT3(x, y, z);
+}
+std::wstring ObjLoader::readWString(std::fstream& p_file)
+{
+	std::string str;
+	p_file >> str;
+	std::wstring wStr(str.length(), L'');
+	copy(str.begin(), str.end(), wStr.begin());
+	return wStr;
 }
