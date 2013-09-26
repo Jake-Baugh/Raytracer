@@ -134,6 +134,8 @@ void ObjLoader::parseMtlFile(std::fstream& p_infile)
 				parseSpecularCoefficient(mtlFile);
 			else if(type == "d" || type == "Tr")
 				parseTransparency(mtlFile);
+			else if(type == "Ni")
+				parseIndexOfRefraction(mtlFile);
 			else if(type == "map_Ka")
 				parseAmbientTex(mtlFile);
 			else if(type == "map_Kd")
@@ -172,6 +174,10 @@ void ObjLoader::parseSpecularCoefficient(std::fstream& p_mtlFile)
 void ObjLoader::parseTransparency(std::fstream& p_mtlFile)
 {
 	m_transparency = readFloat(p_mtlFile);
+}
+void ObjLoader::parseIndexOfRefraction(std::fstream& p_mtlFile)
+{
+	m_indexOfRefraction = readFloat(p_mtlFile);
 }
 
 void ObjLoader::parseAmbientTex(std::fstream& p_mtlFile)

@@ -31,6 +31,7 @@ private:
 	void parseSpecular(std::fstream& p_mtlFile);
 	void parseSpecularCoefficient(std::fstream& p_mtlFile);
 	void parseTransparency(std::fstream& p_mtlFile);
+	void parseIndexOfRefraction(std::fstream& p_mtlFile);
 
 	void parseAmbientTex(std::fstream& p_mtlFile);
 	void parseDiffuseTex(std::fstream& p_mtlFile);
@@ -57,6 +58,7 @@ private:
 	
 	float m_specularCoefficient;
 	float m_transparency;
+	float m_indexOfRefraction;
 
 	std::wstring m_ambientTexName;
 	std::wstring m_diffuseTexName;
