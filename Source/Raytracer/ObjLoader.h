@@ -8,6 +8,8 @@
 #include <DirectXMath.h>
 
 #include "Vertex.h"
+#include "Triangle.h"
+#include "Mtl.h"
 
 class ObjLoader
 {
@@ -16,16 +18,22 @@ public:
 	~ObjLoader();
 
 	std::vector<Vertex> getLoadedVertices();
+	std::vector<Triangle> getLoadedTriangles();
+	std::vector<Mtl> getLoadedMtls();
 
 	void loadObj(std::string p_fileName);
 private:
+	void parseObject(std::fstream& p_infile);
+	void parseGroup(std::fstream& p_infile);
+
 	void parsePosition(std::fstream& p_infile);
 	void parseNormal(std::fstream& p_infile);
 	void parseTexCoord(std::fstream& p_infile);
 	void parseFace(std::fstream& p_infile);
-	
-	void parseMtlFile(std::fstream& p_infile);
+	void parseUsemtl(std::fstream& p_infile);
 
+	void parseMtlFile(std::fstream& p_infile);
+	void parseNewmtl(std::fstream& p_mtlfile);
 	void parseAmbient(std::fstream& p_mtlfile);
 	void parseDiffuse(std::fstream& p_mtlFile);
 	void parseSpecular(std::fstream& p_mtlFile);
@@ -52,22 +60,9 @@ private:
 	std::vector<DirectX::XMFLOAT3>	m_normals;
 	std::vector<DirectX::XMFLOAT2>	m_texCoords;
 
-	DirectX::XMFLOAT3 m_ambient;
-	DirectX::XMFLOAT3 m_diffuse;
-	DirectX::XMFLOAT3 m_specular;
-	
-	float m_specularCoefficient;
-	float m_transparency;
-	float m_indexOfRefraction;
-
-	std::wstring m_ambientTexName;
-	std::wstring m_diffuseTexName;
-	std::wstring m_specularTexName;
-	std::wstring m_specularHighlightTexName;
-	std::wstring m_alphaTexName;
-	std::wstring m_bumpMapName;
-	std::wstring m_displacementMapName;
-	std::wstring m_stencilDecalMapName;
+	std::vector<Triangle> m_triangles;
+	std::vector<Mtl> m_mtls;
+	int m_currentMtl;
 
 };
 

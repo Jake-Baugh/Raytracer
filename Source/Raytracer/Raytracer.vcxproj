@@ -120,11 +120,13 @@
     <ClInclude Include="ManagementSS.h" />
     <ClInclude Include="ManagementTex.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="Mtl.h" />
     <ClInclude Include="ObjLoader.h" />
     <ClInclude Include="Rays.h" />
     <ClInclude Include="Raytracer.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="TexIds.h" />
+    <ClInclude Include="Triangle.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="Window.h" />
