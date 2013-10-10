@@ -71,7 +71,6 @@ HRESULT ManagementTex::loadTexture(ID3D11Device* p_device,
 {
 	HRESULT hr = S_OK;
 	ID3D11Resource* texture = NULL;
-	ID3D11ShaderResourceView* srvTexture = NULL;
 
 	p_fileName = L"../Resources/" + p_fileName;
 
@@ -83,6 +82,8 @@ HRESULT ManagementTex::loadTexture(ID3D11Device* p_device,
 		p_fileName.c_str(), MB_OK | MB_ICONEXCLAMATION);
 
 	p_context->CopySubresourceRegion(m_textureArray, D3D11CalcSubresource(0, p_arraySlice, 1), 0, 0, 0, texture, 0, NULL); 
+
+	SAFE_RELEASE(texture);
 
 	return hr;
 }

@@ -83,8 +83,6 @@ HRESULT Renderer::init(  HWND p_windowHandle, unsigned int p_screenWidth, unsign
 		hr = initManagementCB(m_managementD3D->getDevice());
 	if(SUCCEEDED(hr))
 		hr = initManagementLight(m_managementD3D->getDevice());
-//	if(SUCCEEDED(hr))
-//		hr = initManagementTex(m_managementD3D->getDevice());
 	if(SUCCEEDED(hr))
 		hr = initManagementSS(m_managementD3D->getDevice());
 	if(SUCCEEDED(hr))
@@ -210,6 +208,11 @@ void Renderer::primaryRayStage()
 	m_managementD3D->setAccumulationUAV(1);
 
 	context->Dispatch(25, 25, 1);
+	
+	ID3D11UnorderedAccessView* uav = nullptr;
+	context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+	context->CSSetUnorderedAccessViews(1, 1, &uav, nullptr);
+	m_managementShader->csUnsetShader(context);
 }
 void Renderer::intersectionStage()
 {
@@ -223,6 +226,11 @@ void Renderer::intersectionStage()
 	m_managementCB->updateCBObject(context, m_geometry->getNumTriangles());
 
 	context->Dispatch(25, 25, 1);
+
+	ID3D11UnorderedAccessView* uav = nullptr;
+	context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+	context->CSSetUnorderedAccessViews(1, 1, &uav, nullptr);
+	m_managementShader->csUnsetShader(context);
 }
 void Renderer::colorStage()
 {
@@ -239,4 +247,10 @@ void Renderer::colorStage()
 	m_managementSS->csSetSS(context, ManagementSS::SSTypes_DEFAULT, 0);
 	
 	context->Dispatch(25, 25, 1);
+	ID3D11UnorderedAccessView* uav = nullptr;
+	context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+	context->CSSetUnorderedAccessViews(1, 1, &uav, nullptr);
+	context->CSSetUnorderedAccessViews(2, 1, &uav, nullptr);
+	context->CSSetUnorderedAccessViews(3, 1, &uav, nullptr);
+	m_managementShader->csUnsetShader(context);
 }

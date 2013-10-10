@@ -20,6 +20,7 @@ public:
 	};
 
 	void csSetShader( ID3D11DeviceContext* p_context, CSIds p_shaderId );
+	void csUnsetShader(ID3D11DeviceContext* p_context);
 
 	HRESULT init( ID3D11Device* p_device );
 private:

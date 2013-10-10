@@ -23,6 +23,10 @@ void ManagementShader::csSetShader( ID3D11DeviceContext* p_context, CSIds p_shad
 	if( p_shaderId < CSIds_COUNT )
 		p_context->CSSetShader(m_computeShaders[p_shaderId], nullptr, 0);
 }
+void ManagementShader::csUnsetShader(ID3D11DeviceContext* p_context)
+{
+	p_context->CSSetShader(NULL, NULL, 0);
+}
 
 HRESULT ManagementShader::init( ID3D11Device* p_device )
 {

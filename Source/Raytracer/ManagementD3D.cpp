@@ -142,7 +142,7 @@ HRESULT ManagementD3D::initAccumulationBuffer(unsigned int p_width, unsigned int
 	D3D11_BUFFER_DESC bufferDesc;
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 
-	int elementSize  = 32; //Four float values
+	int elementSize  = 16; //Four float values
 	int elementCount = p_width * p_height;
 
 	bufferDesc.BindFlags			= D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
