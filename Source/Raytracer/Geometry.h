@@ -18,9 +18,8 @@ public:
 
 	unsigned int getNumTriangles();
 
-	HRESULT init(ID3D11Device* p_device, std::string p_fileName);
+	HRESULT init(ID3D11Device* p_device, std::vector<Triangle> p_triangles);
 private:
-	void	initTriangles(std::string p_fileName);
 	HRESULT initTriangleBuffer(ID3D11Device* p_device);
 	HRESULT initTriangleSRV(ID3D11Device* p_devicve);
 

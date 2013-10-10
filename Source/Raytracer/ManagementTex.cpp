@@ -24,7 +24,7 @@ HRESULT ManagementTex::init(ID3D11Device* p_device)
 {
 	HRESULT hr = S_OK;
 
-	hr = loadTexture(p_device, L"Resources/boxTex.dds", TexIds::TexIds_CUBE);
+	hr = loadTexture(p_device, L"../Resources/boxTex.dds", TexIds::TexIds_CUBE);
 
 	return hr;
 }

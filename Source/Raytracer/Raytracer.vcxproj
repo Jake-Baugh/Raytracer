@@ -97,6 +97,7 @@
     <ClCompile Include="ManagementCB.cpp" />
     <ClCompile Include="ManagementD3D.cpp" />
     <ClCompile Include="ManagementLight.cpp" />
+    <ClCompile Include="ManagementMaterial.cpp" />
     <ClCompile Include="ManagementShader.cpp" />
     <ClCompile Include="ManagementSS.cpp" />
     <ClCompile Include="ManagementTex.cpp" />
@@ -117,9 +118,11 @@
     <ClInclude Include="ManagementCB.h" />
     <ClInclude Include="ManagementD3D.h" />
     <ClInclude Include="ManagementLight.h" />
+    <ClInclude Include="ManagementMaterial.h" />
     <ClInclude Include="ManagementShader.h" />
     <ClInclude Include="ManagementSS.h" />
     <ClInclude Include="ManagementTex.h" />
+    <ClInclude Include="Material.h" />
     <ClInclude Include="Mtl.h" />
     <ClInclude Include="ObjLoader.h" />
     <ClInclude Include="Rays.h" />

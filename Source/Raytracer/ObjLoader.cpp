@@ -135,6 +135,7 @@ void ObjLoader::parseMtlFile(std::fstream& p_infile)
 {
 	std::string mtlFilename;
 	p_infile >> mtlFilename;
+	mtlFilename = "../Resources/" + mtlFilename;
 
 	std::fstream mtlFile(mtlFilename);
 

@@ -3,6 +3,10 @@
 
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <vector>
+
+#include "Triangle.h"
+#include "Material.h"
 
 class ManagementD3D;
 class ManagementShader;
@@ -10,6 +14,7 @@ class ManagementCB;
 class ManagementLight;
 class ManagementTex;
 class ManagementSS;
+class ManagementMaterial;
 class Intersections;
 class Rays;
 class Geometry;
@@ -37,7 +42,10 @@ private:
 	HRESULT initManagementSS(ID3D11Device* p_device);
 	HRESULT initIntersections(ID3D11Device* p_device, unsigned int p_screenWidth, unsigned int p_screenHeight);
 	HRESULT initRays(ID3D11Device* p_device, unsigned int p_screenWidth, unsigned int p_screenHeight);
-	HRESULT initGeometry(ID3D11Device* p_device);
+	HRESULT initGeometry(ID3D11Device* p_device, std::vector<Triangle> p_triangles);
+	HRESULT initManagementMaterial(ID3D11Device* p_device, std::vector<Material> p_materials);
+
+	HRESULT loadObj(ID3D11Device* p_device);
 
 
 	void primaryRayStage();
@@ -50,6 +58,7 @@ private:
 	ManagementLight*	m_managementLight;
 	ManagementTex*		m_managementTex;
 	ManagementSS*		m_managementSS;
+	ManagementMaterial* m_managementMaterial;
 	Intersections*		m_intersections;
 	Rays*				m_rays;
 	Geometry*			m_geometry;

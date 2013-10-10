@@ -1,28 +1,33 @@
 #include "Renderer.h"
 
+#include <string>
+
 #include "ManagementD3D.h"
 #include "ManagementShader.h"
 #include "ManagementCB.h"
 #include "ManagementLight.h"
 #include "ManagementTex.h"
 #include "ManagementSS.h"
+#include "ManagementMaterial.h"
 #include "Intersections.h"
 #include "Rays.h"
 #include "Utility.h"
 #include "ObjLoader.h"
 #include "Geometry.h"
+#include "Material.h"
 
 Renderer::Renderer()
 {
-	m_managementD3D		= nullptr;
-	m_managementShader	= nullptr;
-	m_managementCB		= nullptr;
-	m_managementLight	= nullptr;
-	m_managementTex		= nullptr;
-	m_managementSS		= nullptr;
-	m_intersections		= nullptr;
-	m_rays				= nullptr;
-	m_geometry			= nullptr;
+	m_managementD3D		 = nullptr;
+	m_managementShader	 = nullptr;
+	m_managementCB		 = nullptr;
+	m_managementLight	 = nullptr;
+	m_managementTex		 = nullptr;
+	m_managementSS		 = nullptr;
+	m_managementMaterial = nullptr;
+	m_intersections		 = nullptr;
+	m_rays				 = nullptr;
+	m_geometry			 = nullptr;
 }
 Renderer::~Renderer()
 {
@@ -32,6 +37,7 @@ Renderer::~Renderer()
 	SAFE_DELETE( m_managementLight );
 	SAFE_DELETE( m_managementTex );
 	SAFE_DELETE( m_managementSS );
+	SAFE_DELETE( m_managementMaterial );
 	SAFE_DELETE( m_intersections );
 	SAFE_DELETE( m_rays );
 	SAFE_DELETE( m_geometry );
@@ -85,8 +91,9 @@ HRESULT Renderer::init(  HWND p_windowHandle, unsigned int p_screenWidth, unsign
 		hr = initIntersections(m_managementD3D->getDevice(), p_screenWidth, p_screenHeight);
 	if(SUCCEEDED(hr))
 		hr = initRays(m_managementD3D->getDevice(), p_screenWidth, p_screenHeight);
+
 	if(SUCCEEDED(hr))
-		hr = initGeometry(m_managementD3D->getDevice());
+		hr = loadObj(m_managementD3D->getDevice());
 
 	if(SUCCEEDED(hr))
 	{
@@ -152,11 +159,44 @@ HRESULT Renderer::initRays(ID3D11Device* p_device, unsigned int p_screenWidth, u
 	m_rays->init(p_device, p_screenWidth, p_screenHeight);
 	return hr;
 }
-HRESULT Renderer::initGeometry(ID3D11Device* p_device)
+HRESULT Renderer::initGeometry(ID3D11Device* p_device, std::vector<Triangle> p_triangles)
 {
 	HRESULT hr = S_OK;
 	m_geometry = new Geometry();
-	hr = m_geometry->init(p_device, "Resources/box.obj");
+	hr = m_geometry->init(p_device, p_triangles);
+	return hr;
+}
+HRESULT Renderer::initManagementMaterial(ID3D11Device* p_device, std::vector<Material> p_materials)
+{
+	HRESULT hr = S_OK;
+	m_managementMaterial = new ManagementMaterial();
+	hr = m_managementMaterial->init(p_device, p_materials);
+	return hr;
+}
+
+HRESULT Renderer::loadObj(ID3D11Device* p_device)
+{
+	HRESULT hr = S_OK;
+
+	ObjLoader objLoader;
+	objLoader.loadObj("../Resources/box3.obj");
+
+	std::vector<Triangle> triangles = objLoader.getLoadedTriangles();
+	std::vector<Mtl> mtls = objLoader.getLoadedMtls();
+	std::vector<Material> materials;
+	std::vector<std::wstring> textureNames;
+	for(unsigned int i=0; i<mtls.size(); i++)
+	{
+		materials.push_back(Material(mtls[i].ambient, mtls[i].diffuse, mtls[i].specular));
+		textureNames.push_back(mtls[i].diffuseTexName);
+	}
+	if(materials.size() == 0)
+		materials.push_back(Material());
+
+	hr = initGeometry(p_device, triangles);
+	if(SUCCEEDED(hr))
+		hr = initManagementMaterial(p_device, materials);
+
 	return hr;
 }
 
@@ -193,6 +233,7 @@ void Renderer::colorStage()
 	m_geometry->csSetSRV(context, 0);
 	m_managementLight->csSetLightSRV(context, 1);
 	m_managementTex->csSetTexture(context, TexIds::TexIds_CUBE, 2);
+	m_managementMaterial->csSetSRV(context, 3);
 	m_managementSS->csSetSS(context, ManagementSS::SSTypes_DEFAULT, 0);
 	
 	context->Dispatch(25, 25, 1);
