@@ -9,7 +9,7 @@ RWStructuredBuffer<Ray>			 rays			: register(u3);
 
 StructuredBuffer<Triangle>		 triangles		: register(t0);
 StructuredBuffer<Light>			 lights			: register(t1);
-Texture2D						 texCube		: register(t2);
+Texture2DArray					 texCube		: register(t2);
 StructuredBuffer<Material>		 materials		: register(t3);
 
 SamplerState					 ssDefault		: register(s0);
@@ -92,7 +92,7 @@ void main( uint3 threadID : SV_DispatchThreadID, uint groupID : SV_GroupID )
 
 		//reflectRay(index, intersectPosition, intersectNormal, intersection.m_triangleId);
 
-		color			= texCube.SampleLevel(ssDefault, intersectTexture, 0);
+		color			= texCube.SampleLevel(ssDefault, float3(intersectTexture, 0), 0);
 		float4 diffuse	= materials[triangles[intersection.m_triangleId].m_mtlIndex].m_diffuse; //float4(1.0f, 1.0f, 1.0f, 1.0f);
 		float4 specular	= materials[triangles[intersection.m_triangleId].m_mtlIndex].m_specular; //float4(1.0f, 1.0f, 1.0f, 0.0f);
 		

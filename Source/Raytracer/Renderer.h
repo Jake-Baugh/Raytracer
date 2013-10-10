@@ -38,14 +38,14 @@ private:
 	HRESULT initManagementShader( ID3D11Device* p_device );
 	HRESULT initManagementCB(ID3D11Device* p_device);
 	HRESULT initManagementLight(ID3D11Device* p_device);
-	HRESULT initManagementTex(ID3D11Device* p_device);
+	HRESULT initManagementTex(ID3D11Device* p_device, ID3D11DeviceContext* p_context, std::vector<std::wstring> p_texFilenames);
 	HRESULT initManagementSS(ID3D11Device* p_device);
 	HRESULT initIntersections(ID3D11Device* p_device, unsigned int p_screenWidth, unsigned int p_screenHeight);
 	HRESULT initRays(ID3D11Device* p_device, unsigned int p_screenWidth, unsigned int p_screenHeight);
 	HRESULT initGeometry(ID3D11Device* p_device, std::vector<Triangle> p_triangles);
 	HRESULT initManagementMaterial(ID3D11Device* p_device, std::vector<Material> p_materials);
 
-	HRESULT loadObj(ID3D11Device* p_device);
+	HRESULT loadObj(ID3D11Device* p_device, ID3D11DeviceContext* p_context);
 
 
 	void primaryRayStage();

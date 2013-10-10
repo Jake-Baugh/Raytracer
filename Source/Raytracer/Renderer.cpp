@@ -83,8 +83,8 @@ HRESULT Renderer::init(  HWND p_windowHandle, unsigned int p_screenWidth, unsign
 		hr = initManagementCB(m_managementD3D->getDevice());
 	if(SUCCEEDED(hr))
 		hr = initManagementLight(m_managementD3D->getDevice());
-	if(SUCCEEDED(hr))
-		hr = initManagementTex(m_managementD3D->getDevice());
+//	if(SUCCEEDED(hr))
+//		hr = initManagementTex(m_managementD3D->getDevice());
 	if(SUCCEEDED(hr))
 		hr = initManagementSS(m_managementD3D->getDevice());
 	if(SUCCEEDED(hr))
@@ -93,7 +93,7 @@ HRESULT Renderer::init(  HWND p_windowHandle, unsigned int p_screenWidth, unsign
 		hr = initRays(m_managementD3D->getDevice(), p_screenWidth, p_screenHeight);
 
 	if(SUCCEEDED(hr))
-		hr = loadObj(m_managementD3D->getDevice());
+		hr = loadObj(m_managementD3D->getDevice(), m_managementD3D->getDeviceContext());
 
 	if(SUCCEEDED(hr))
 	{
@@ -131,11 +131,11 @@ HRESULT Renderer::initManagementLight( ID3D11Device* p_device)
 	m_managementLight->init(p_device);
 	return hr;
 }
-HRESULT Renderer::initManagementTex(ID3D11Device* p_device)
+HRESULT Renderer::initManagementTex(ID3D11Device* p_device, ID3D11DeviceContext* p_context, std::vector<std::wstring> p_texFilenames)
 {
 	HRESULT hr = S_OK;
 	m_managementTex = new ManagementTex();
-	m_managementTex->init(p_device);
+	m_managementTex->init(p_device, p_context, p_texFilenames);
 	return hr;
 }
 HRESULT Renderer::initManagementSS(ID3D11Device* p_device)
@@ -174,12 +174,12 @@ HRESULT Renderer::initManagementMaterial(ID3D11Device* p_device, std::vector<Mat
 	return hr;
 }
 
-HRESULT Renderer::loadObj(ID3D11Device* p_device)
+HRESULT Renderer::loadObj(ID3D11Device* p_device, ID3D11DeviceContext* p_context)
 {
 	HRESULT hr = S_OK;
 
 	ObjLoader objLoader;
-	objLoader.loadObj("../Resources/box3.obj");
+	objLoader.loadObj("../Resources/box2.obj");
 
 	std::vector<Triangle> triangles = objLoader.getLoadedTriangles();
 	std::vector<Mtl> mtls = objLoader.getLoadedMtls();
@@ -196,6 +196,8 @@ HRESULT Renderer::loadObj(ID3D11Device* p_device)
 	hr = initGeometry(p_device, triangles);
 	if(SUCCEEDED(hr))
 		hr = initManagementMaterial(p_device, materials);
+	if(SUCCEEDED(hr))
+		hr = initManagementTex(p_device, p_context, textureNames);
 
 	return hr;
 }
@@ -232,7 +234,7 @@ void Renderer::colorStage()
 	m_intersections->csSetIntersectionUAV(context, 1);
 	m_geometry->csSetSRV(context, 0);
 	m_managementLight->csSetLightSRV(context, 1);
-	m_managementTex->csSetTexture(context, TexIds::TexIds_CUBE, 2);
+	m_managementTex->csSetTexture(context, 2);
 	m_managementMaterial->csSetSRV(context, 3);
 	m_managementSS->csSetSS(context, ManagementSS::SSTypes_DEFAULT, 0);
 	
