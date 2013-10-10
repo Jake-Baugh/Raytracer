@@ -5,7 +5,7 @@
 RWStructuredBuffer<Ray>			 rays			: register(u0);
 RWStructuredBuffer<Intersection> intersections	: register(u1);
 
-StructuredBuffer<Vertex> vertices : register(t0);
+StructuredBuffer<Triangle> triangles : register(t0);
 
 [numthreads(32, 32, 1)]
 void main( uint3 threadID : SV_DispatchThreadID, uint groupID : SV_GroupID )
@@ -26,11 +26,11 @@ void main( uint3 threadID : SV_DispatchThreadID, uint groupID : SV_GroupID )
 	float3 pos1, pos2, pos3;
 	if(ray.m_triangleId > -2)
 	{
-		for(uint i=0; i<cb_numVertices; i+=3)
+		for(uint i=0; i<cb_numTriangles; i++)
 		{	
-			pos1 = vertices[i].m_position;
-			pos2 = vertices[i+1].m_position;
-			pos3 = vertices[i+2].m_position;
+			pos1 = triangles[i].m_vertices[0].m_position;
+			pos2 = triangles[i].m_vertices[1].m_position;
+			pos3 = triangles[i].m_vertices[2].m_position;
 			intersection = intersectTriangle(ray, pos1, pos2, pos3);
 			
 			if(	ray.m_triangleId != i &&

@@ -7,7 +7,7 @@ RWStructuredBuffer<Intersection> intersections	: register(u1);
 RWStructuredBuffer<float4>		 accumulation	: register(u2);
 RWStructuredBuffer<Ray>			 rays			: register(u3);
 
-StructuredBuffer<Vertex>		 vertices		: register(t0);
+StructuredBuffer<Triangle>		 triangles		: register(t0);
 StructuredBuffer<Light>			 lights			: register(t1);
 Texture2D						 texCube		: register(t2);
 
@@ -72,9 +72,9 @@ void main( uint3 threadID : SV_DispatchThreadID, uint groupID : SV_GroupID )
 
 	if(intersection.m_triangleId >= 0)
 	{
-		vertexA = vertices[intersection.m_triangleId];
-		vertexB = vertices[intersection.m_triangleId+1];
-		vertexC = vertices[intersection.m_triangleId+2];
+		vertexA = triangles[intersection.m_triangleId].m_vertices[0];
+		vertexB = triangles[intersection.m_triangleId].m_vertices[1];
+		vertexC = triangles[intersection.m_triangleId].m_vertices[2];
 
 		barCoord = intersection.m_barCoord;
 
@@ -111,11 +111,11 @@ void main( uint3 threadID : SV_DispatchThreadID, uint groupID : SV_GroupID )
 			lightRay.m_reflectiveFactor	= float3(1.0f, 1.0f, 1.0f);
 			lightRay.m_padding			= 1;
 
-			for(int i=0; i<cb_numVertices; i+=3)
+			for(int i=0; i<cb_numTriangles; i++)
 			{
-				float3 pos1 = vertices[i].m_position;
-				float3 pos2 = vertices[i+1].m_position;
-				float3 pos3 = vertices[i+2].m_position;
+				float3 pos1 = triangles[i].m_vertices[0].m_position;
+				float3 pos2 = triangles[i].m_vertices[1].m_position;
+				float3 pos3 = triangles[i].m_vertices[2].m_position;
 				Intersection shadowIntersection = intersectTriangle(lightRay, pos1, pos2, pos3);
 
 				if( lightRay.m_triangleId != i &&

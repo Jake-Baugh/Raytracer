@@ -25,6 +25,12 @@ struct Vertex
 	float2 m_texCoord;
 };
 
+struct Triangle
+{
+	Vertex m_vertices[3];
+	int m_mtlIndex;
+};
+
 struct Sphere
 {
 	float3	m_center;

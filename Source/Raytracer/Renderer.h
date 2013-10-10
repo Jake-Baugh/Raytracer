@@ -12,7 +12,7 @@ class ManagementTex;
 class ManagementSS;
 class Intersections;
 class Rays;
-class Model;
+class Geometry;
 
 class Renderer
 {
@@ -37,7 +37,7 @@ private:
 	HRESULT initManagementSS(ID3D11Device* p_device);
 	HRESULT initIntersections(ID3D11Device* p_device, unsigned int p_screenWidth, unsigned int p_screenHeight);
 	HRESULT initRays(ID3D11Device* p_device, unsigned int p_screenWidth, unsigned int p_screenHeight);
-	HRESULT initCube(ID3D11Device* p_device);
+	HRESULT initGeometry(ID3D11Device* p_device);
 
 
 	void primaryRayStage();
@@ -52,8 +52,7 @@ private:
 	ManagementSS*		m_managementSS;
 	Intersections*		m_intersections;
 	Rays*				m_rays;
-
-	Model*				m_cube;
+	Geometry*			m_geometry;
 };
 
 #endif //RAYTRACER_RENDERER_H

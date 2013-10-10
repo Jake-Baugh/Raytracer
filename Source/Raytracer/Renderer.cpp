@@ -10,7 +10,7 @@
 #include "Rays.h"
 #include "Utility.h"
 #include "ObjLoader.h"
-#include "Model.h"
+#include "Geometry.h"
 
 Renderer::Renderer()
 {
@@ -22,7 +22,7 @@ Renderer::Renderer()
 	m_managementSS		= nullptr;
 	m_intersections		= nullptr;
 	m_rays				= nullptr;
-	m_cube				= nullptr;
+	m_geometry			= nullptr;
 }
 Renderer::~Renderer()
 {
@@ -34,7 +34,7 @@ Renderer::~Renderer()
 	SAFE_DELETE( m_managementSS );
 	SAFE_DELETE( m_intersections );
 	SAFE_DELETE( m_rays );
-	SAFE_DELETE( m_cube );
+	SAFE_DELETE( m_geometry );
 }
 
 void Renderer::render(DirectX::XMFLOAT4X4 p_viewMatrix,
@@ -86,7 +86,7 @@ HRESULT Renderer::init(  HWND p_windowHandle, unsigned int p_screenWidth, unsign
 	if(SUCCEEDED(hr))
 		hr = initRays(m_managementD3D->getDevice(), p_screenWidth, p_screenHeight);
 	if(SUCCEEDED(hr))
-		hr = initCube(m_managementD3D->getDevice());
+		hr = initGeometry(m_managementD3D->getDevice());
 
 	if(SUCCEEDED(hr))
 	{
@@ -152,11 +152,11 @@ HRESULT Renderer::initRays(ID3D11Device* p_device, unsigned int p_screenWidth, u
 	m_rays->init(p_device, p_screenWidth, p_screenHeight);
 	return hr;
 }
-HRESULT Renderer::initCube(ID3D11Device* p_device)
+HRESULT Renderer::initGeometry(ID3D11Device* p_device)
 {
 	HRESULT hr = S_OK;
-	m_cube = new Model();
-	hr = m_cube->init(p_device, "Resources/box.obj");
+	m_geometry = new Geometry();
+	hr = m_geometry->init(p_device, "Resources/box.obj");
 	return hr;
 }
 
@@ -175,10 +175,10 @@ void Renderer::intersectionStage()
 	m_managementShader->csSetShader(context, ManagementShader::CSIds_INTERSECTION_STAGE);
 	m_rays->csSetRayUAV(context, 0);
 	m_intersections->csSetIntersectionUAV(context, 1);
-	m_cube->csSetSRV(context, 0);
+	m_geometry->csSetSRV(context, 0);
 
 	m_managementCB->csSetCB(context, CBIds::CBIds_OBJECT);
-	m_managementCB->updateCBObject(context, m_cube->getNumVertices());
+	m_managementCB->updateCBObject(context, m_geometry->getNumTriangles());
 
 	context->Dispatch(25, 25, 1);
 }
@@ -190,7 +190,7 @@ void Renderer::colorStage()
 	m_managementD3D->setAccumulationUAV(2);
 	m_rays->csSetRayUAV(context, 3);
 	m_intersections->csSetIntersectionUAV(context, 1);
-	m_cube->csSetSRV(context, 0);
+	m_geometry->csSetSRV(context, 0);
 	m_managementLight->csSetLightSRV(context, 1);
 	m_managementTex->csSetTexture(context, TexIds::TexIds_CUBE, 2);
 	m_managementSS->csSetSS(context, ManagementSS::SSTypes_DEFAULT, 0);

@@ -91,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Intersections.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="ManagementCB.cpp" />
@@ -99,7 +100,6 @@
     <ClCompile Include="ManagementShader.cpp" />
     <ClCompile Include="ManagementSS.cpp" />
     <ClCompile Include="ManagementTex.cpp" />
-    <ClCompile Include="Model.cpp" />
     <ClCompile Include="ObjLoader.cpp" />
     <ClCompile Include="Rays.cpp" />
     <ClCompile Include="Raytracer.cpp" />
@@ -109,6 +109,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CBDesc.h" />
+    <ClInclude Include="Geometry.h" />
     <ClInclude Include="InputDesc.h" />
     <ClInclude Include="Intersections.h" />
     <ClInclude Include="KeyCodes.h" />
@@ -119,7 +120,6 @@
     <ClInclude Include="ManagementShader.h" />
     <ClInclude Include="ManagementSS.h" />
     <ClInclude Include="ManagementTex.h" />
-    <ClInclude Include="Model.h" />
     <ClInclude Include="Mtl.h" />
     <ClInclude Include="ObjLoader.h" />
     <ClInclude Include="Rays.h" />

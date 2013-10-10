@@ -1,47 +1,47 @@
-#include "Model.h"
+#include "Geometry.h"
 #include "ObjLoader.h"
 #include "Utility.h"
 
-Model::Model()
+Geometry::Geometry()
 {
-	m_vertexBuffer	= nullptr;
-	m_vertexSRV		= nullptr;
+	m_triangleBuffer = nullptr;
+	m_triangleSRV	 = nullptr;
 }
-Model::~Model()
+Geometry::~Geometry()
 {
-	SAFE_RELEASE(m_vertexBuffer);
-	SAFE_RELEASE(m_vertexSRV);
-}
-
-void Model::csSetSRV(ID3D11DeviceContext* p_context, unsigned int p_startSlot)
-{
-	p_context->CSSetShaderResources(p_startSlot, 1, &m_vertexSRV);
+	SAFE_RELEASE(m_triangleBuffer);
+	SAFE_RELEASE(m_triangleSRV);
 }
 
-unsigned int Model::getNumVertices()
+void Geometry::csSetSRV(ID3D11DeviceContext* p_context, unsigned int p_startSlot)
 {
-	return m_vertices.size();
+	p_context->CSSetShaderResources(p_startSlot, 1, &m_triangleSRV);
 }
 
-HRESULT Model::init(ID3D11Device* p_device, std::string p_fileName)
+unsigned int Geometry::getNumTriangles()
+{
+	return m_triangles.size();
+}
+
+HRESULT Geometry::init(ID3D11Device* p_device, std::string p_fileName)
 {
 	HRESULT hr = S_OK;
 	
-	initVertices(p_fileName);
+	initTriangles(p_fileName);
 
-	hr = initVertexBuffer(p_device);
+	hr = initTriangleBuffer(p_device);
 	if(SUCCEEDED(hr))
-		hr = initVertexSRV(p_device);
+		hr = initTriangleSRV(p_device);
 
 	return hr;
 }
-void	Model::initVertices(std::string p_fileName)
+void	Geometry::initTriangles(std::string p_fileName)
 {
 	ObjLoader loader;
 	loader.loadObj(p_fileName);
-	m_vertices = loader.getLoadedVertices();
+	m_triangles = loader.getLoadedTriangles();
 }
-HRESULT Model::initVertexBuffer(ID3D11Device* p_device)
+HRESULT Geometry::initTriangleBuffer(ID3D11Device* p_device)
 {
 	HRESULT hr = S_OK;
 
@@ -49,14 +49,14 @@ HRESULT Model::initVertexBuffer(ID3D11Device* p_device)
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
 
 	bufferDesc.BindFlags			= D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
-	bufferDesc.ByteWidth			= sizeof(Vertex) * m_vertices.size();
+	bufferDesc.ByteWidth			= sizeof(Triangle) * m_triangles.size();
 	bufferDesc.MiscFlags			= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-	bufferDesc.StructureByteStride	= sizeof(Vertex);
+	bufferDesc.StructureByteStride	= sizeof(Triangle);
 
 	D3D11_SUBRESOURCE_DATA initData;
-	initData.pSysMem = &m_vertices[0];
+	initData.pSysMem = &m_triangles[0];
 
-	hr = p_device->CreateBuffer(&bufferDesc, &initData, &m_vertexBuffer);
+	hr = p_device->CreateBuffer(&bufferDesc, &initData, &m_triangleBuffer);
 	if(FAILED(hr))
 	{
 		MessageBox(
@@ -68,13 +68,13 @@ HRESULT Model::initVertexBuffer(ID3D11Device* p_device)
 
 	return hr;
 }
-HRESULT Model::initVertexSRV(ID3D11Device* p_device)
+HRESULT Geometry::initTriangleSRV(ID3D11Device* p_device)
 {
 	HRESULT hr = S_OK;
 
 	D3D11_BUFFER_DESC bufferDesc;
 	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-	m_vertexBuffer->GetDesc(&bufferDesc);
+	m_triangleBuffer->GetDesc(&bufferDesc);
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	ZeroMemory(&srvDesc, sizeof(srvDesc));
@@ -84,7 +84,7 @@ HRESULT Model::initVertexSRV(ID3D11Device* p_device)
 	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
 	srvDesc.BufferEx.NumElements = bufferDesc.ByteWidth / bufferDesc.StructureByteStride;
 
-	hr = p_device->CreateShaderResourceView(m_vertexBuffer, &srvDesc, &m_vertexSRV);
+	hr = p_device->CreateShaderResourceView(m_triangleBuffer, &srvDesc, &m_triangleSRV);
 	if(FAILED(hr))
 	{
 		MessageBox(

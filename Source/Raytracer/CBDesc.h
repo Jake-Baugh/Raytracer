@@ -35,7 +35,7 @@ struct CBWindowResize
 
 struct CBObject
 {
-	unsigned int m_numVertices;
+	unsigned int m_numTriangles;
 	
 	int m_padding2;
 	int m_padding3;

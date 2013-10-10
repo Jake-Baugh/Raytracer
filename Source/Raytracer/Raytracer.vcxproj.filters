@@ -23,9 +23,6 @@
     <ClCompile Include="ManagementTex.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Renderer</Filter>
-    </ClCompile>
     <ClCompile Include="Rays.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
@@ -41,6 +38,9 @@
     <ClCompile Include="Raytracer.cpp" />
     <ClCompile Include="ObjLoader.cpp">
       <Filter>ObjLoader</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -74,9 +74,6 @@
     <ClInclude Include="ManagementTex.h">
       <Filter>Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Renderer</Filter>
-    </ClInclude>
     <ClInclude Include="Rays.h">
       <Filter>Renderer</Filter>
     </ClInclude>
@@ -103,6 +100,9 @@
       <Filter>ObjLoader</Filter>
     </ClInclude>
     <ClInclude Include="Triangle.h" />
+    <ClInclude Include="Geometry.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Renderer">

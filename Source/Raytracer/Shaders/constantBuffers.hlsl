@@ -24,7 +24,7 @@ cbuffer cbWindowResize: register( b1 )
 
 cbuffer cbObject : register( b2 )
 {
-	uint cb_numVertices;
+	uint cb_numTriangles;
 
 	int cb_padding2;
 	int cb_padding3;

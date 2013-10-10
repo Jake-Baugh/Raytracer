@@ -49,7 +49,7 @@ void ManagementCB::updateCBWindowResize(ID3D11DeviceContext* p_context,
 void ManagementCB::updateCBObject(ID3D11DeviceContext* p_context, unsigned int p_numVertices)
 {
 	CBObject cBuffer;
-	cBuffer.m_numVertices = p_numVertices;
+	cBuffer.m_numTriangles = p_numVertices;
 
 	p_context->UpdateSubresource(m_constantBuffers[CBIds::CBIds_OBJECT], 0, 0, &cBuffer, 0, 0);
 }
