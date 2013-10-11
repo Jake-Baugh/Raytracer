@@ -45,6 +45,12 @@
     <ClCompile Include="ManagementMaterial.cpp">
       <Filter>Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="Node.cpp">
+      <Filter>Octree</Filter>
+    </ClCompile>
+    <ClCompile Include="Octree.cpp">
+      <Filter>Octree</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputDesc.h" />
@@ -110,6 +116,12 @@
     <ClInclude Include="ManagementMaterial.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Node.h">
+      <Filter>Octree</Filter>
+    </ClInclude>
+    <ClInclude Include="Octree.h">
+      <Filter>Octree</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Renderer">
@@ -126,6 +138,9 @@
     </Filter>
     <Filter Include="ObjLoader">
       <UniqueIdentifier>{b15fcf20-8633-4745-8bb3-2737e0b2c065}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Octree">
+      <UniqueIdentifier>{ec7b239f-b909-412a-8172-eb170379f520}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

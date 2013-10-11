@@ -101,7 +101,9 @@
     <ClCompile Include="ManagementShader.cpp" />
     <ClCompile Include="ManagementSS.cpp" />
     <ClCompile Include="ManagementTex.cpp" />
+    <ClCompile Include="Node.cpp" />
     <ClCompile Include="ObjLoader.cpp" />
+    <ClCompile Include="Octree.cpp" />
     <ClCompile Include="Rays.cpp" />
     <ClCompile Include="Raytracer.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -124,7 +126,9 @@
     <ClInclude Include="ManagementTex.h" />
     <ClInclude Include="Material.h" />
     <ClInclude Include="Mtl.h" />
+    <ClInclude Include="Node.h" />
     <ClInclude Include="ObjLoader.h" />
+    <ClInclude Include="Octree.h" />
     <ClInclude Include="Rays.h" />
     <ClInclude Include="Raytracer.h" />
     <ClInclude Include="Renderer.h" />

@@ -15,6 +15,7 @@
 #include "ObjLoader.h"
 #include "Geometry.h"
 #include "Material.h"
+#include "Octree.h"
 
 Renderer::Renderer()
 {
@@ -28,6 +29,7 @@ Renderer::Renderer()
 	m_intersections		 = nullptr;
 	m_rays				 = nullptr;
 	m_geometry			 = nullptr;
+	m_octree			 = nullptr;
 }
 Renderer::~Renderer()
 {
@@ -41,6 +43,7 @@ Renderer::~Renderer()
 	SAFE_DELETE( m_intersections );
 	SAFE_DELETE( m_rays );
 	SAFE_DELETE( m_geometry );
+	SAFE_DELETE( m_octree );
 }
 
 void Renderer::render(DirectX::XMFLOAT4X4 p_viewMatrix,
@@ -203,8 +206,16 @@ HRESULT Renderer::loadObj(ID3D11Device* p_device, ID3D11DeviceContext* p_context
 		hr = initManagementMaterial(p_device, materials);
 	if(SUCCEEDED(hr))
 		hr = initManagementTex(p_device, p_context, textureNames);
+	if(SUCCEEDED(hr))
+		initOctree(triangles);
 
 	return hr;
+}
+
+void Renderer::initOctree(std::vector<Triangle> p_triangles)
+{
+	m_octree = new Octree();
+	m_octree->init(p_triangles);
 }
 
 void Renderer::primaryRayStage()

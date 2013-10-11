@@ -18,6 +18,7 @@ class ManagementMaterial;
 class Intersections;
 class Rays;
 class Geometry;
+class Octree;
 
 class Renderer
 {
@@ -46,6 +47,7 @@ private:
 	HRESULT initManagementMaterial(ID3D11Device* p_device, std::vector<Material> p_materials);
 
 	HRESULT loadObj(ID3D11Device* p_device, ID3D11DeviceContext* p_context);
+	void initOctree(std::vector<Triangle> p_triangles);
 
 
 	void primaryRayStage();
@@ -65,6 +67,7 @@ private:
 	Intersections*		m_intersections;
 	Rays*				m_rays;
 	Geometry*			m_geometry;
+	Octree*				m_octree;
 };
 
 #endif //RAYTRACER_RENDERER_H
