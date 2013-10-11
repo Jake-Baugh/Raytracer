@@ -76,6 +76,13 @@ HRESULT Renderer::init(  HWND p_windowHandle, unsigned int p_screenWidth, unsign
 {
 	HRESULT hr = S_OK;
 
+	m_threadCountX = p_screenWidth / BLOCK_SIZE_X;
+	if(p_screenWidth % BLOCK_SIZE_X != 0)
+		m_threadCountX += 1;
+	m_threadCountY = p_screenHeight / BLOCK_SIZE_Y;
+	if(p_screenHeight % BLOCK_SIZE_Y != 0)
+		m_threadCountY += 1;
+
 	hr = initManagementD3D( p_windowHandle, p_screenWidth, p_screenHeight );
 	if(SUCCEEDED(hr))
 		hr = initManagementShader(m_managementD3D->getDevice());
@@ -207,7 +214,7 @@ void Renderer::primaryRayStage()
 	m_rays->csSetRayUAV(context, 0);
 	m_managementD3D->setAccumulationUAV(1);
 
-	context->Dispatch(25, 25, 1);
+	context->Dispatch(m_threadCountX, m_threadCountY, 1);
 	
 	ID3D11UnorderedAccessView* uav = nullptr;
 	context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
@@ -225,7 +232,7 @@ void Renderer::intersectionStage()
 	m_managementCB->csSetCB(context, CBIds::CBIds_OBJECT);
 	m_managementCB->updateCBObject(context, m_geometry->getNumTriangles());
 
-	context->Dispatch(25, 25, 1);
+	context->Dispatch(m_threadCountX, m_threadCountY, 1);
 
 	ID3D11UnorderedAccessView* uav = nullptr;
 	context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
@@ -246,7 +253,7 @@ void Renderer::colorStage()
 	m_managementMaterial->csSetSRV(context, 3);
 	m_managementSS->csSetSS(context, ManagementSS::SSTypes_DEFAULT, 0);
 	
-	context->Dispatch(25, 25, 1);
+	context->Dispatch(m_threadCountX, m_threadCountY, 1);
 	ID3D11UnorderedAccessView* uav = nullptr;
 	context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
 	context->CSSetUnorderedAccessViews(1, 1, &uav, nullptr);

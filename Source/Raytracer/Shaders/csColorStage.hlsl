@@ -53,7 +53,7 @@ void reflectRay(uint index, float3 position, float3 normal, int triangleId )
 	rays[index]				= ray;
 }
 
-[numthreads(32, 32, 1)]
+[numthreads(BLOCK_SIZE_X, BLOCK_SIZE_Y, 1)]
 void main( uint3 threadID : SV_DispatchThreadID, uint groupID : SV_GroupID )
 {	
 	uint index =  threadID.y * cb_screenWidth + threadID.x;

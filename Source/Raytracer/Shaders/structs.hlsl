@@ -1,6 +1,9 @@
 #ifndef RAYTRACER_STRUCTS_HLSL
 #define RAYTRACER_STRUCTS_HLSL
 
+#define BLOCK_SIZE_X 32
+#define BLOCK_SIZE_Y 32
+
 struct Ray
 {
 	float3	m_origin;

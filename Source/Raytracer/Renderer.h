@@ -52,6 +52,9 @@ private:
 	void intersectionStage();
 	void colorStage();
 
+	unsigned int m_threadCountX;
+	unsigned int m_threadCountY;
+
 	ManagementD3D*		m_managementD3D;
 	ManagementShader*	m_managementShader;
 	ManagementCB*		m_managementCB;

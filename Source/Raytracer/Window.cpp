@@ -19,8 +19,8 @@ Window::Window()
 	s_mouseDeltaX = 0;
 	s_mouseDeltaY = 0;
 
-	s_screenWidth  = 800;
-	s_screenHeight = 800;
+	s_screenWidth  = 1024;
+	s_screenHeight = 768;
 }
 Window::~Window()
 {
