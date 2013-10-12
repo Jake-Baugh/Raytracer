@@ -207,15 +207,17 @@ HRESULT Renderer::loadObj(ID3D11Device* p_device, ID3D11DeviceContext* p_context
 	if(SUCCEEDED(hr))
 		hr = initManagementTex(p_device, p_context, textureNames);
 	if(SUCCEEDED(hr))
-		initOctree(triangles);
+		hr = initOctree(p_device, triangles);
 
 	return hr;
 }
 
-void Renderer::initOctree(std::vector<Triangle> p_triangles)
+HRESULT Renderer::initOctree(ID3D11Device* p_device, std::vector<Triangle> p_triangles)
 {
+	HRESULT hr = S_OK;
 	m_octree = new Octree();
-	m_octree->init(p_triangles);
+	hr = m_octree->init(p_device, p_triangles);
+	return hr;
 }
 
 void Renderer::primaryRayStage()

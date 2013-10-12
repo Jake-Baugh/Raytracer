@@ -1,13 +1,32 @@
 #include "Octree.h"
+#include "Utility.h"
 
 Octree::Octree()
 {
+	m_nodeBuffer = nullptr;
+	m_nodeSRV	 = nullptr;
 }
 Octree::~Octree()
 {
+	SAFE_DELETE(m_root);
+	SAFE_RELEASE(m_nodeBuffer);
+	SAFE_RELEASE(m_nodeSRV);
 }
 
-void Octree::init(std::vector<Triangle> p_triangles)
+HRESULT Octree::init(ID3D11Device* p_device, std::vector<Triangle> p_triangles)
+{
+	HRESULT hr = S_OK;
+
+	buildTree(p_triangles);
+	flattenTree();
+
+	hr = initNodeBuffer(p_device);
+	hr = initNodeSRV(p_device);
+
+	return hr;
+}
+
+void Octree::buildTree(std::vector<Triangle> p_triangles)
 {
 	float minX = FLT_MAX;
 	float minY = FLT_MAX;
@@ -46,45 +65,94 @@ void Octree::init(std::vector<Triangle> p_triangles)
 	for(unsigned int i=0; i<p_triangles.size(); i++)
 		indices.push_back(i);
 
-	m_root = new Node(min, max);
+	m_root = new LinkedNode(min, max);
 	m_root->subdivide(min, max, indices, p_triangles);
 }
-
-
-void Octree::assignTriangles(std::vector<Triangle> p_triangles)
+void Octree::flattenTree()
 {
+	unsigned int currentNodeIndex = 0;
 
+	LinkedNode* currentNode = m_root;
+	LinkedNode* child		= nullptr;
+
+	std::vector<LinkedNode*> linkedNodes;
+	linkedNodes.push_back(currentNode);
+
+	bool done = false;
+	while(!done)
+	{
+		for(unsigned int i=0; i<NUM_CHILDREN; i++)
+		{
+			child = currentNode->getChild(i);
+			if(child)
+			{
+				linkedNodes.push_back(child);
+				currentNode->addChildIndex(linkedNodes.size()-1);
+			}
+		}
+		currentNodeIndex++;
+		if(currentNodeIndex < linkedNodes.size())
+			currentNode = linkedNodes[currentNodeIndex];
+		else
+			done = true;
+	}
+
+	for(unsigned int i=0; i<linkedNodes.size(); i++)
+		m_nodes.push_back(Node(linkedNodes[i]->getTriIndices(), linkedNodes[i]->getChildIndices()));
 }
 
-void Octree::subdivide(DirectX::XMFLOAT3 p_min, DirectX::XMFLOAT3 p_max, unsigned int p_currentNode, unsigned int p_levels)
+HRESULT Octree::initNodeBuffer(ID3D11Device* p_device)
 {
-	if(p_levels > 0)
+	HRESULT hr = S_OK;
+
+	D3D11_BUFFER_DESC bufferDesc;
+	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+
+	bufferDesc.BindFlags			= D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
+	bufferDesc.ByteWidth			= sizeof(Node) * m_nodes.size();
+	bufferDesc.MiscFlags			= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+	bufferDesc.StructureByteStride	= sizeof(Node);
+
+	D3D11_SUBRESOURCE_DATA initData;
+	initData.pSysMem = &m_nodes[0];
+
+	hr = p_device->CreateBuffer(&bufferDesc, &initData, &m_nodeBuffer);
+	if(FAILED(hr))
 	{
-		DirectX::XMFLOAT3 minValues[8];
-		DirectX::XMFLOAT3 maxValues[8];
-
-		minValues[0] = p_min;
-		maxValues[0] = DirectX::XMFLOAT3( (p_min.x+p_max.x)/2, (p_min.y+p_max.y)/2 , (p_min.z+p_max.z)/2 );
-
-		minValues[1] = DirectX::XMFLOAT3( (p_min.x+p_max.x)/2, p_min.y, p_min.z );
-		maxValues[1] = DirectX::XMFLOAT3( p_max.x, (p_min.y+p_max.y)/2 , (p_min.z+p_max.z)/2 );
-
-		minValues[2] = DirectX::XMFLOAT3( p_min.x, p_min.y, (p_min.z+p_max.z)/2 );
-		maxValues[2] = DirectX::XMFLOAT3( (p_min.x+p_max.x)/2, (p_min.y+p_max.y)/2 , p_max.z );
-
-		minValues[3] = DirectX::XMFLOAT3( (p_min.x+p_max.x)/2, p_min.y, (p_min.z+p_max.z)/2 );
-		maxValues[3] = DirectX::XMFLOAT3( p_max.x, (p_min.y+p_max.y)/2 , p_max.z );
-
-		minValues[4] = DirectX::XMFLOAT3( p_min.x, (p_min.y+p_max.y)/2, p_min.z );
-		maxValues[4] = DirectX::XMFLOAT3( (p_min.x+p_max.x)/2, p_max.y , (p_min.z+p_max.z)/2 );
-
-		minValues[5] = DirectX::XMFLOAT3( (p_min.x+p_max.x)/2, (p_min.y+p_max.y)/2, p_min.z );
-		maxValues[5] = DirectX::XMFLOAT3( p_max.x, p_max.y , (p_min.z+p_max.z)/2 );
-
-		minValues[6] = DirectX::XMFLOAT3( p_min.x, (p_min.y+p_max.y)/2, (p_min.z+p_max.z)/2 );
-		maxValues[6] = DirectX::XMFLOAT3( (p_min.x+p_max.x)/2, p_max.y, p_max.z );
-
-		minValues[7] = DirectX::XMFLOAT3( (p_min.x+p_max.x)/2, (p_min.y+p_max.y)/2, (p_min.z+p_max.z)/2 );
-		maxValues[7] = DirectX::XMFLOAT3( p_max.x, p_max.y, p_max.z );	
+		MessageBox(
+			0,
+			L"Model::initVertexBuffer | CreateBuffer() Failed",
+			L"Model.h",
+			MB_OK | MB_ICONEXCLAMATION);
 	}
+
+	return hr;
+}
+HRESULT Octree::initNodeSRV(ID3D11Device* p_device)
+{
+	HRESULT hr = S_OK;
+
+	D3D11_BUFFER_DESC bufferDesc;
+	ZeroMemory(&bufferDesc, sizeof(bufferDesc));
+	m_nodeBuffer->GetDesc(&bufferDesc);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));
+
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFEREX;
+	srvDesc.BufferEx.FirstElement = 0;
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.BufferEx.NumElements = bufferDesc.ByteWidth / bufferDesc.StructureByteStride;
+
+	hr = p_device->CreateShaderResourceView(m_nodeBuffer, &srvDesc, &m_nodeSRV);
+	if(FAILED(hr))
+	{
+		MessageBox(
+			0,
+			L"Model::initVertexSRV | CreateShaderResourceView() Failed",
+			L"Model.h",
+			MB_OK | MB_ICONEXCLAMATION);
+	}
+
+	return hr;
 }

@@ -2,6 +2,7 @@
 #define RAYTRACER_OCTREE_H
 
 #include <vector>
+#include <d3d11.h>
 
 #include "Node.h"
 #include "Triangle.h"
@@ -12,13 +13,19 @@ public:
 	Octree();
 	~Octree();
 
-	void init(std::vector<Triangle> p_triangles);
-
-	void assignTriangles(std::vector<Triangle> p_triangles);
+	HRESULT init(ID3D11Device* p_device, std::vector<Triangle> p_triangles);
 private:
-	void subdivide(DirectX::XMFLOAT3 p_min, DirectX::XMFLOAT3 p_max, unsigned int p_currentNode, unsigned int p_levels);
+	void buildTree(std::vector<Triangle> p_triangles);
+	void flattenTree();
 
-	Node* m_root;
+	HRESULT initNodeBuffer(ID3D11Device* p_device);
+	HRESULT initNodeSRV(ID3D11Device* p_device);
+
+	LinkedNode* m_root;
+	std::vector<Node> m_nodes;
+
+	ID3D11Buffer* m_nodeBuffer;
+	ID3D11ShaderResourceView* m_nodeSRV;
 };
 
 #endif //RAYTRACER_OCTREE_H

@@ -47,7 +47,7 @@ private:
 	HRESULT initManagementMaterial(ID3D11Device* p_device, std::vector<Material> p_materials);
 
 	HRESULT loadObj(ID3D11Device* p_device, ID3D11DeviceContext* p_context);
-	void initOctree(std::vector<Triangle> p_triangles);
+	HRESULT initOctree(ID3D11Device* p_device, std::vector<Triangle> p_triangles);
 
 
 	void primaryRayStage();

@@ -4,13 +4,40 @@
 
 Node::Node()
 {
+	numTris = 0;
+	for(unsigned int i=0; i<MAX_NUM_TRIS; i++)
+		triIndices[i] = -1;
+	for(unsigned int i=0; i<NUM_CHILDREN; i++)
+		children[i] = -1;
+}
+Node::Node(std::vector<unsigned int> p_triIndices, std::vector<unsigned int> p_children)
+{
+	numTris = p_triIndices.size();
+	for(unsigned int i=0; i<MAX_NUM_TRIS; i++)
+	{
+		if(i<numTris)
+			triIndices[i] = p_triIndices[i];
+		else
+			triIndices[i] = -1;
+	}
+	for(unsigned int i=0; i<NUM_CHILDREN; i++)
+	{
+		if(i<p_children.size())
+			children[i] = p_children[i];
+		else
+			children[i] = -1;
+	}
+}
+
+LinkedNode::LinkedNode()
+{
 	m_min = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	m_max = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	
 	for(unsigned int i=0; i<NUM_CHILDREN; i++)
 		m_children[i] = nullptr;
 }
-Node::Node(DirectX::XMFLOAT3 p_min, DirectX::XMFLOAT3 p_max)
+LinkedNode::LinkedNode(DirectX::XMFLOAT3 p_min, DirectX::XMFLOAT3 p_max)
 {
 	m_min = p_min;
 	m_max = p_max;
@@ -18,41 +45,58 @@ Node::Node(DirectX::XMFLOAT3 p_min, DirectX::XMFLOAT3 p_max)
 	for(unsigned int i=0; i<NUM_CHILDREN; i++)
 		m_children[i] = nullptr;
 }
-Node::~Node()
+LinkedNode::~LinkedNode()
 {
 	for(unsigned int i=0; i<NUM_CHILDREN; i++)
 		SAFE_DELETE(m_children[i]);
 }
 
-void Node::setMin(DirectX::XMFLOAT3 p_min)
+void LinkedNode::setMin(DirectX::XMFLOAT3 p_min)
 {
 	m_min = p_min;
 }
-void Node::setMax(DirectX::XMFLOAT3 p_max)
+void LinkedNode::setMax(DirectX::XMFLOAT3 p_max)
 {
 	m_max = p_max;
 }
 
-void Node::addPrimitive(unsigned int p_primitive)
+void LinkedNode::addChildIndex(unsigned int p_index)
 {
-	m_primitives.push_back(p_primitive);
+	m_childIndices.push_back(p_index);
 }
 
-void Node::subdivide(DirectX::XMFLOAT3 p_min,
+LinkedNode* LinkedNode::getChild(unsigned int p_index)
+{
+	LinkedNode* node = nullptr;
+	if(p_index >= 0 && p_index < NUM_CHILDREN)
+		node = m_children[p_index];
+	return node;
+}
+
+std::vector<unsigned int> LinkedNode::getTriIndices()
+{
+	return m_triIndices;
+}
+std::vector<unsigned int> LinkedNode::getChildIndices()
+{
+	return m_childIndices;
+}
+
+void LinkedNode::subdivide(DirectX::XMFLOAT3 p_min,
 					 DirectX::XMFLOAT3 p_max,
 					 std::vector<unsigned int> p_indices,
 					 std::vector<Triangle> p_triangles)
 {
-	std::vector<unsigned int> intersectIndices;
+	std::vector<unsigned int> triIndices;
 	bool intersect = false;
 	for(unsigned int i=0; i<p_indices.size(); i++)
 	{
 		intersect = triangleIntersect(p_triangles[p_indices[i]]);
 		if(intersect)
-			intersectIndices.push_back(p_indices[i]);
+			triIndices.push_back(p_indices[i]);
 	}
 
-	if(intersectIndices.size() > MAX_NUM_TRIS)
+	if(triIndices.size() > MAX_NUM_TRIS)
 	{
 		DirectX::XMFLOAT3 minValues[8];
 		DirectX::XMFLOAT3 maxValues[8];
@@ -83,13 +127,15 @@ void Node::subdivide(DirectX::XMFLOAT3 p_min,
 
 		for(unsigned int i=0; i<NUM_CHILDREN; i++)
 		{
-			m_children[i] = new Node(minValues[i], maxValues[i]);
-			m_children[i]->subdivide(minValues[i], maxValues[i], intersectIndices, p_triangles);
+			m_children[i] = new LinkedNode(minValues[i], maxValues[i]);
+			m_children[i]->subdivide(minValues[i], maxValues[i], triIndices, p_triangles);
 		}
 	}
+	else
+		m_triIndices = triIndices;
 }
 
-bool Node::triangleIntersect(Triangle p_tri)
+bool LinkedNode::triangleIntersect(Triangle p_tri)
 {
 	bool intersect = false;
 	DirectX::XMFLOAT3 pos;
