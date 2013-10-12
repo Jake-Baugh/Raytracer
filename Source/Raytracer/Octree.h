@@ -13,14 +13,12 @@ public:
 	~Octree();
 
 	void init(std::vector<Triangle> p_triangles);
-	
-	std::vector<Node>& getNodes();
 
+	void assignTriangles(std::vector<Triangle> p_triangles);
 private:
-
 	void subdivide(DirectX::XMFLOAT3 p_min, DirectX::XMFLOAT3 p_max, unsigned int p_currentNode, unsigned int p_levels);
 
-	std::vector<Node> m_nodes;
+	Node* m_root;
 };
 
 #endif //RAYTRACER_OCTREE_H

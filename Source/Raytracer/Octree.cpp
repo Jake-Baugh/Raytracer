@@ -39,17 +39,21 @@ void Octree::init(std::vector<Triangle> p_triangles)
 		}
 	}
 
-	DirectX::XMFLOAT3 min = DirectX::XMFLOAT3(minX, minY, minZ);
-	DirectX::XMFLOAT3 max = DirectX::XMFLOAT3(maxX, maxY, maxZ);
+	DirectX::XMFLOAT3 min = DirectX::XMFLOAT3(minX-1, minY-1, minZ-1);
+	DirectX::XMFLOAT3 max = DirectX::XMFLOAT3(maxX+1, maxY+1, maxZ+1);
 
-	m_nodes.push_back(Node(min, max));
-	subdivide(min, max, 0, 2);
+	std::vector<unsigned int> indices;
+	for(unsigned int i=0; i<p_triangles.size(); i++)
+		indices.push_back(i);
 
+	m_root = new Node(min, max);
+	m_root->subdivide(min, max, indices, p_triangles);
 }
 
-std::vector<Node>& Octree::getNodes()
+
+void Octree::assignTriangles(std::vector<Triangle> p_triangles)
 {
-	return m_nodes;
+
 }
 
 void Octree::subdivide(DirectX::XMFLOAT3 p_min, DirectX::XMFLOAT3 p_max, unsigned int p_currentNode, unsigned int p_levels)
@@ -81,13 +85,6 @@ void Octree::subdivide(DirectX::XMFLOAT3 p_min, DirectX::XMFLOAT3 p_max, unsigne
 		maxValues[6] = DirectX::XMFLOAT3( (p_min.x+p_max.x)/2, p_max.y, p_max.z );
 
 		minValues[7] = DirectX::XMFLOAT3( (p_min.x+p_max.x)/2, (p_min.y+p_max.y)/2, (p_min.z+p_max.z)/2 );
-		maxValues[7] = DirectX::XMFLOAT3( p_max.x, p_max.y, p_max.z );
-	
-		for(unsigned int i=0; i<8; i++)
-		{
-			m_nodes.push_back(Node(minValues[i], maxValues[i]));
-			m_nodes[p_currentNode].addChild(m_nodes.size()-1);
-			subdivide(minValues[i], maxValues[i], m_nodes.size()-1, p_levels-1);
-		}		
+		maxValues[7] = DirectX::XMFLOAT3( p_max.x, p_max.y, p_max.z );	
 	}
 }

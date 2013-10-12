@@ -7,6 +7,7 @@
 #include "Triangle.h"
 
 #define NUM_CHILDREN 8
+#define MAX_NUM_TRIS 10
 
 class Node
 {
@@ -18,17 +19,21 @@ public:
 	void setMin(DirectX::XMFLOAT3 p_min);
 	void setMax(DirectX::XMFLOAT3 p_max);
 
-	void addChild(unsigned int p_child);
+	void addPrimitive(unsigned int p_primitive);
 
-	void subdivide(int p_levels, DirectX::XMFLOAT3 p_min, DirectX::XMFLOAT3 p_max);
-
+	void subdivide(DirectX::XMFLOAT3 p_min,
+		DirectX::XMFLOAT3 p_max,
+		std::vector<unsigned int> p_indices,
+		std::vector<Triangle> p_triangles);
 private:
 	bool triangleIntersect(Triangle p_tri);
 
 	DirectX::XMFLOAT3 m_min;
 	DirectX::XMFLOAT3 m_max;
 
-	std::vector<unsigned int> m_children;
+	std::vector<unsigned int> m_primitives;
+
+	Node* m_children[NUM_CHILDREN];
 };
 
 #endif //RAYTRACER_NODE_H
