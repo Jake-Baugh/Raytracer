@@ -51,6 +51,7 @@
     <ClCompile Include="Octree.cpp">
       <Filter>Octree</Filter>
     </ClCompile>
+    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="InputDesc.h" />
@@ -122,6 +123,7 @@
     <ClInclude Include="Octree.h">
       <Filter>Octree</Filter>
     </ClInclude>
+    <ClInclude Include="Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Renderer">
