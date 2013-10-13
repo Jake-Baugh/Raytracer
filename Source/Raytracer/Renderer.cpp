@@ -265,6 +265,7 @@ void Renderer::colorStage()
 	m_managementLight->csSetLightSRV(context, 1);
 	m_managementTex->csSetTexture(context, 2);
 	m_managementMaterial->csSetSRV(context, 3);
+	m_octree->csSetNodeSRV(context, 4);
 	m_managementSS->csSetSS(context, ManagementSS::SSTypes_DEFAULT, 0);
 	
 	context->Dispatch(m_threadCountX, m_threadCountY, 1);
