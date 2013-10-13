@@ -4,6 +4,7 @@
 #include "structs.hlsl"
 
 #define FLT_MAX 3.402823466e+38F
+#define FLT_MIN 1.175494351e-38F
 
 bool intersectSphere(Ray ray, Sphere sphere)
 {
@@ -85,7 +86,7 @@ bool intersectBox(Ray ray, Node node)
 	{
 		e = dot(a[i], p);
 		f = dot(a[i], ray.m_direction);
-		if(sqrt(f*f) > tMin)
+		if(sqrt(f*f) > FLT_MIN)
 		{
 			t1 = (e + h[i])/f;
 			t2 = (e - h[i])/f;

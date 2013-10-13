@@ -28,6 +28,9 @@ private:
 
 	ID3D11Buffer* m_nodeBuffer;
 	ID3D11ShaderResourceView* m_nodeSRV;
+
+	ID3D11Buffer* m_indexBuffer;
+	ID3D11UnorderedAccessView* m_indexUAV;
 };
 
 #endif //RAYTRACER_OCTREE_H

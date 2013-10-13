@@ -5,12 +5,17 @@ Octree::Octree()
 {
 	m_nodeBuffer = nullptr;
 	m_nodeSRV	 = nullptr;
+
+	m_indexBuffer = nullptr;
+	m_indexUAV	  = nullptr;
 }
 Octree::~Octree()
 {
 	SAFE_DELETE(m_root);
 	SAFE_RELEASE(m_nodeBuffer);
 	SAFE_RELEASE(m_nodeSRV);
+	SAFE_RELEASE(m_indexBuffer);
+	SAFE_RELEASE(m_indexUAV);
 }
 
 void Octree::csSetNodeSRV(ID3D11DeviceContext* p_context, unsigned int p_startSlot)
@@ -26,7 +31,8 @@ HRESULT Octree::init(ID3D11Device* p_device, std::vector<Triangle> p_triangles)
 	flattenTree();
 
 	hr = initNodeBuffer(p_device);
-	hr = initNodeSRV(p_device);
+	if(SUCCEEDED(hr))
+		hr = initNodeSRV(p_device);
 
 	return hr;
 }
