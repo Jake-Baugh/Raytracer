@@ -13,6 +13,8 @@ public:
 	Octree();
 	~Octree();
 
+	void csSetNodeSRV(ID3D11DeviceContext* p_context, unsigned int p_startSlot);
+
 	HRESULT init(ID3D11Device* p_device, std::vector<Triangle> p_triangles);
 private:
 	void buildTree(std::vector<Triangle> p_triangles);

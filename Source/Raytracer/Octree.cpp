@@ -13,6 +13,11 @@ Octree::~Octree()
 	SAFE_RELEASE(m_nodeSRV);
 }
 
+void Octree::csSetNodeSRV(ID3D11DeviceContext* p_context, unsigned int p_startSlot)
+{
+	p_context->CSSetShaderResources(p_startSlot, 1, &m_nodeSRV);
+}
+
 HRESULT Octree::init(ID3D11Device* p_device, std::vector<Triangle> p_triangles)
 {
 	HRESULT hr = S_OK;
@@ -98,7 +103,14 @@ void Octree::flattenTree()
 	}
 
 	for(unsigned int i=0; i<linkedNodes.size(); i++)
-		m_nodes.push_back(Node(linkedNodes[i]->getTriIndices(), linkedNodes[i]->getChildIndices()));
+	{
+		m_nodes.push_back(
+		Node(
+		linkedNodes[i]->getMin(),
+		linkedNodes[i]->getMax(),
+		linkedNodes[i]->getTriIndices(), 
+		linkedNodes[i]->getChildIndices()));
+	}
 }
 
 HRESULT Octree::initNodeBuffer(ID3D11Device* p_device)

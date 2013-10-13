@@ -3,6 +3,8 @@
 
 #define BLOCK_SIZE_X 32
 #define BLOCK_SIZE_Y 32
+#define NUM_CHILDREN 8
+#define MAX_NUM_TRIS 10
 
 struct Ray
 {
@@ -59,6 +61,16 @@ struct Material
 	float4 m_ambient;
 	float4 m_diffuse;
 	float4 m_specular;
+};
+
+struct Node
+{
+	float3 m_min;
+	float3 m_max;
+
+	uint m_numTris;
+	int	 m_triIndices[MAX_NUM_TRIS];
+	int  m_children[NUM_CHILDREN];
 };
 
 #endif //RAYTRACER_STRUCTS_HLSL

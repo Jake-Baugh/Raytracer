@@ -241,6 +241,7 @@ void Renderer::intersectionStage()
 	m_rays->csSetRayUAV(context, 0);
 	m_intersections->csSetIntersectionUAV(context, 1);
 	m_geometry->csSetSRV(context, 0);
+	m_octree->csSetNodeSRV(context, 1);
 
 	m_managementCB->csSetCB(context, CBIds::CBIds_OBJECT);
 	m_managementCB->updateCBObject(context, m_geometry->getNumTriangles());

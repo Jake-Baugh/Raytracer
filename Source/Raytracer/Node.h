@@ -11,12 +11,18 @@
 
 struct Node
 {
+	DirectX::XMFLOAT3 min;
+	DirectX::XMFLOAT3 max;
+	
 	unsigned int numTris;
 	int triIndices[MAX_NUM_TRIS];
 	int children[NUM_CHILDREN];
 
 	Node();
-	Node(std::vector<unsigned int> p_triIndices, std::vector<unsigned int> p_children);
+	Node(DirectX::XMFLOAT3 p_min,
+		 DirectX::XMFLOAT3 p_max,
+		 std::vector<unsigned int> p_triIndices,
+		 std::vector<unsigned int> p_children);
 };
 
 class LinkedNode
@@ -28,6 +34,9 @@ public:
 
 	void setMin(DirectX::XMFLOAT3 p_min);
 	void setMax(DirectX::XMFLOAT3 p_max);
+
+	DirectX::XMFLOAT3 getMin();
+	DirectX::XMFLOAT3 getMax();
 
 	void addChildIndex(unsigned int p_index);
 

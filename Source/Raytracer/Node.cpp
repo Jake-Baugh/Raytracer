@@ -10,8 +10,14 @@ Node::Node()
 	for(unsigned int i=0; i<NUM_CHILDREN; i++)
 		children[i] = -1;
 }
-Node::Node(std::vector<unsigned int> p_triIndices, std::vector<unsigned int> p_children)
+Node::Node(DirectX::XMFLOAT3 p_min,
+		   DirectX::XMFLOAT3 p_max,
+		   std::vector<unsigned int> p_triIndices,
+		   std::vector<unsigned int> p_children)
 {
+	min = p_min;
+	max = p_max;
+
 	numTris = p_triIndices.size();
 	for(unsigned int i=0; i<MAX_NUM_TRIS; i++)
 	{
@@ -58,6 +64,15 @@ void LinkedNode::setMin(DirectX::XMFLOAT3 p_min)
 void LinkedNode::setMax(DirectX::XMFLOAT3 p_max)
 {
 	m_max = p_max;
+}
+
+DirectX::XMFLOAT3 LinkedNode::getMin()
+{
+	return m_min;
+}
+DirectX::XMFLOAT3 LinkedNode::getMax()
+{
+	return m_max;
 }
 
 void LinkedNode::addChildIndex(unsigned int p_index)

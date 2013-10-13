@@ -7,12 +7,13 @@ RWStructuredBuffer<Intersection> intersections	: register(u1);
 RWStructuredBuffer<float4>		 accumulation	: register(u2);
 RWStructuredBuffer<Ray>			 rays			: register(u3);
 
-StructuredBuffer<Triangle>		 triangles		: register(t0);
-StructuredBuffer<Light>			 lights			: register(t1);
-Texture2DArray					 texCube		: register(t2);
-StructuredBuffer<Material>		 materials		: register(t3);
+StructuredBuffer<Triangle>	triangles	: register(t0);
+StructuredBuffer<Light>		lights		: register(t1);
+Texture2DArray				texCube		: register(t2);
+StructuredBuffer<Material>	materials	: register(t3);
+StructuredBuffer<Node>		nodes		: register(t4);
 
-SamplerState					 ssDefault		: register(s0);
+SamplerState ssDefault : register(s0);
 
 float3 pointLight(float3 normal, float3 position, float4 diffuse, float4 specular, Light light)
 {
