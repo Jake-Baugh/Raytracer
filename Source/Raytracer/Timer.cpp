@@ -1,6 +1,8 @@
 #include "Timer.h"
 #include "Utility.h"
 
+#include <iostream>
+
 Timer::Timer()
 {
 	m_start		= nullptr;
@@ -43,8 +45,47 @@ double Timer::getTime(ID3D11DeviceContext* p_context)
 		UINT64 delta = endTime - startTime;
 		double frequenzy = static_cast<double>(disjointData.Frequency);
 		time = (delta/frequenzy) * 1000.0f;
+		if(delta > 32)
+			m_times.push_back(time);
 	}
+
 	return time;
+}
+
+double Timer::getMeanTime()
+{
+	double meanTime = 0.0;
+	for(unsigned int i=0; i<m_times.size(); i++)
+		meanTime += m_times[i];
+
+	meanTime = meanTime/m_times.size();
+	return meanTime;
+}
+
+double Timer::getMax()
+{
+	double max = FLT_MIN;
+	for(unsigned int i=0; i<m_times.size(); i++)
+	{
+		if(m_times[i] > max)
+			max = m_times[i];
+	}
+	return max;
+}
+double Timer::getMin()
+{
+	double min = FLT_MAX;
+	for(unsigned int i=0; i<m_times.size(); i++)
+	{
+		if(m_times[i] < min)
+			min = m_times[i];
+	}
+	return min;
+}
+
+unsigned int Timer::getNumSamples()
+{
+	return m_times.size();
 }
 
 HRESULT Timer::init(ID3D11Device* p_device)

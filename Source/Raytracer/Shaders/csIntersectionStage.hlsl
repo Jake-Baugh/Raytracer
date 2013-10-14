@@ -58,6 +58,8 @@ Intersection intersectTestAccelerated(Ray ray, uint index)
 	bIntersection.m_range = ray.m_maxDistance;
 	bIntersection.m_triangleId = -2;
 
+	float3 vfInvDir = float3(1.0f / ray.m_direction);
+
 	int currentNode = 0;
 	int stackOffset = 0;
 	int stack[128];
@@ -66,14 +68,24 @@ Intersection intersectTestAccelerated(Ray ray, uint index)
 	bool intersect = false;
 	while(true)
 	{
-		if(intersectBox(ray, nodes[currentNode]))
+		currentNode = stack[stackOffset];
+		stackOffset--;
+		Node node = nodes[currentNode];
+
+		float2 T = BVH_IntersectBox(ray.m_origin, vfInvDir, node);
+
+		if(T[0] > bIntersection.m_range || T[1] < 0.0f)
+		{
+			//Ray misses
+		}
+		else //if(intersectBox(ray, node))
 		{
 			if(nodes[currentNode].m_children[0] != -1)
 			{
 				for(uint i=0; i<NUM_CHILDREN; i++)
-				{
-					stack[stackOffset] = nodes[currentNode].m_children[i];
+				{	
 					stackOffset++;
+					stack[stackOffset] = node.m_children[i];
 				}
 			}
 			else //leaf node
@@ -81,30 +93,32 @@ Intersection intersectTestAccelerated(Ray ray, uint index)
 				float3 pos1, pos2, pos3;
 				if(ray.m_triangleId > -2)
 				{
-					for(int i=0; i<nodes[currentNode].m_numTris; i++)
+					for(int i=0; i<node.m_numTris; i++)
 					{	
-						pos1 = triangles[nodes[currentNode].m_triIndices[i]].m_vertices[0].m_position;
-						pos2 = triangles[nodes[currentNode].m_triIndices[i]].m_vertices[1].m_position;
-						pos3 = triangles[nodes[currentNode].m_triIndices[i]].m_vertices[2].m_position;
+						pos1 = triangles[node.m_triIndices[i]].m_vertices[0].m_position;
+						pos2 = triangles[node.m_triIndices[i]].m_vertices[1].m_position;
+						pos3 = triangles[node.m_triIndices[i]].m_vertices[2].m_position;
 						intersection = intersectTriangle(ray, pos1, pos2, pos3);
 						
-						if(	ray.m_triangleId != nodes[currentNode].m_triIndices[i] &&
+						if(	ray.m_triangleId != node.m_triIndices[i] &&
 							intersection.m_barCoord.x >= 0.0f &&
 							intersection.m_range < bIntersection.m_range &&
-							intersection.m_range > 0.0f)
+							intersection.m_range > FLT_MIN &&
+							intersection.m_triangleId != bIntersection.m_triangleId)
 						{
 							bIntersection = intersection;
-							bIntersection.m_triangleId = nodes[currentNode].m_triIndices[i];
+							bIntersection.m_triangleId = node.m_triIndices[i];
 							intersect = true;
 						}
 					}
 				}
+				
 			}
 		}
-		stackOffset--;
-		if(stackOffset >= 0)
-			currentNode = stack[stackOffset];
-		else
+	//	stackOffset--;
+	//	if(stackOffset >= 0)
+	//		currentNode = stack[stackOffset];
+		if(stackOffset < 0)
 			break;
 	}
 	if(!intersect)
@@ -123,4 +137,6 @@ void main( uint3 threadID : SV_DispatchThreadID, uint groupID : SV_GroupID )
 	Ray ray = rays[index];
 	
 	intersections[index] = intersectTestAccelerated(ray, index);
+
+	//intersections[index] = intersectTest(ray, index);
 }

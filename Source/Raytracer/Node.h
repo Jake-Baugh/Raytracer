@@ -7,7 +7,7 @@
 #include "Triangle.h"
 
 #define NUM_CHILDREN 8
-#define MAX_NUM_TRIS 10
+#define MAX_NUM_TRIS 15
 
 struct Node
 {

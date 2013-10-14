@@ -236,7 +236,9 @@ void main( uint3 threadID : SV_DispatchThreadID, uint groupID : SV_GroupID )
 			//			inShadow = true;
 			//	}
 			//}
+			
 			Intersection shadowIntersection = intersectTestAccelerated(lightRay, index);
+			//Intersection shadowIntersection = intersectTest(lightRay, index);
 			if( //lightRay.m_triangleId != shadowIntersection.m_triangleId &&
 				shadowIntersection.m_barCoord.x >= 0.0f &&
 				shadowIntersection.m_range > 0.0001f)

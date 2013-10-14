@@ -1,10 +1,10 @@
 #ifndef RAYTRACER_STRUCTS_HLSL
 #define RAYTRACER_STRUCTS_HLSL
 
-#define BLOCK_SIZE_X 32
-#define BLOCK_SIZE_Y 32
+#define BLOCK_SIZE_X 16
+#define BLOCK_SIZE_Y 16
 #define NUM_CHILDREN 8
-#define MAX_NUM_TRIS 10
+#define MAX_NUM_TRIS 15
 
 struct Ray
 {

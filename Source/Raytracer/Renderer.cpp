@@ -16,6 +16,7 @@
 #include "Geometry.h"
 #include "Material.h"
 #include "Octree.h"
+#include "Timer.h"
 
 Renderer::Renderer()
 {
@@ -30,6 +31,7 @@ Renderer::Renderer()
 	m_rays				 = nullptr;
 	m_geometry			 = nullptr;
 	m_octree			 = nullptr;
+	m_timer				 = nullptr;
 }
 Renderer::~Renderer()
 {
@@ -44,6 +46,12 @@ Renderer::~Renderer()
 	SAFE_DELETE( m_rays );
 	SAFE_DELETE( m_geometry );
 	SAFE_DELETE( m_octree );
+	SAFE_DELETE( m_timer );
+}
+
+Timer* Renderer::getTimer()
+{
+	return m_timer;
 }
 
 void Renderer::render(DirectX::XMFLOAT4X4 p_viewMatrix,
@@ -63,6 +71,7 @@ void Renderer::render(DirectX::XMFLOAT4X4 p_viewMatrix,
 		p_cameraPosition,
 		m_managementLight->getNumLights());
 
+//	m_timer->start(m_managementD3D->getDeviceContext());
 	primaryRayStage();
 	
 	unsigned int rayBounces = 2;
@@ -71,6 +80,8 @@ void Renderer::render(DirectX::XMFLOAT4X4 p_viewMatrix,
 		intersectionStage();
 		colorStage();
 	}
+//	m_timer->stop(m_managementD3D->getDeviceContext());
+//	m_timer->getTime(m_managementD3D->getDeviceContext());
 
 	m_managementD3D->present();
 }
@@ -108,6 +119,8 @@ HRESULT Renderer::init(  HWND p_windowHandle, unsigned int p_screenWidth, unsign
 		m_managementCB->csSetCB(m_managementD3D->getDeviceContext(), CBIds::CBIds_WINDOW_RESIZE);
 		m_managementCB->updateCBWindowResize(m_managementD3D->getDeviceContext(), p_screenWidth, p_screenHeight);
 	}
+	if(SUCCEEDED(hr))
+		hr = initTimer(m_managementD3D->getDevice());
 
 	return hr;
 }
@@ -187,7 +200,7 @@ HRESULT Renderer::loadObj(ID3D11Device* p_device, ID3D11DeviceContext* p_context
 	HRESULT hr = S_OK;
 
 	ObjLoader objLoader;
-	objLoader.loadObj("../Resources/box2.obj");
+	objLoader.loadObj("../Resources/box4.obj");
 
 	std::vector<Triangle> triangles = objLoader.getLoadedTriangles();
 	std::vector<Mtl> mtls = objLoader.getLoadedMtls();
@@ -220,6 +233,14 @@ HRESULT Renderer::initOctree(ID3D11Device* p_device, std::vector<Triangle> p_tri
 	return hr;
 }
 
+HRESULT Renderer::initTimer(ID3D11Device* p_device)
+{
+	HRESULT hr = S_OK;
+	m_timer = new Timer();
+	m_timer->init(p_device);
+	return hr;
+}
+
 void Renderer::primaryRayStage()
 {
 	ID3D11DeviceContext* context = m_managementD3D->getDeviceContext();
@@ -227,8 +248,11 @@ void Renderer::primaryRayStage()
 	m_rays->csSetRayUAV(context, 0);
 	m_managementD3D->setAccumulationUAV(1);
 
+	m_timer->start(context);
 	context->Dispatch(m_threadCountX, m_threadCountY, 1);
-	
+	m_timer->stop(context);
+	m_timer->getTime(context);
+
 	ID3D11UnorderedAccessView* uav = nullptr;
 	context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
 	context->CSSetUnorderedAccessViews(1, 1, &uav, nullptr);
@@ -246,7 +270,10 @@ void Renderer::intersectionStage()
 	m_managementCB->csSetCB(context, CBIds::CBIds_OBJECT);
 	m_managementCB->updateCBObject(context, m_geometry->getNumTriangles());
 
+	m_timer->start(context);
 	context->Dispatch(m_threadCountX, m_threadCountY, 1);
+	m_timer->stop(context);
+	m_timer->getTime(context);
 
 	ID3D11UnorderedAccessView* uav = nullptr;
 	context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
@@ -269,6 +296,7 @@ void Renderer::colorStage()
 	m_managementSS->csSetSS(context, ManagementSS::SSTypes_DEFAULT, 0);
 	
 	context->Dispatch(m_threadCountX, m_threadCountY, 1);
+	
 	ID3D11UnorderedAccessView* uav = nullptr;
 	context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
 	context->CSSetUnorderedAccessViews(1, 1, &uav, nullptr);

@@ -19,12 +19,15 @@ class Intersections;
 class Rays;
 class Geometry;
 class Octree;
+class Timer;
 
 class Renderer
 {
 public:
 	Renderer();
 	~Renderer();
+
+	Timer* getTimer();
 
 	void render(
 			DirectX::XMFLOAT4X4 p_viewMatrix,
@@ -48,7 +51,7 @@ private:
 
 	HRESULT loadObj(ID3D11Device* p_device, ID3D11DeviceContext* p_context);
 	HRESULT initOctree(ID3D11Device* p_device, std::vector<Triangle> p_triangles);
-
+	HRESULT initTimer(ID3D11Device* p_device);
 
 	void primaryRayStage();
 	void intersectionStage();
@@ -68,6 +71,7 @@ private:
 	Rays*				m_rays;
 	Geometry*			m_geometry;
 	Octree*				m_octree;
+	Timer*				m_timer;
 };
 
 #endif //RAYTRACER_RENDERER_H

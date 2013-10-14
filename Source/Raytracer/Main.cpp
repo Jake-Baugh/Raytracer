@@ -15,6 +15,8 @@ int WINAPI WinMain( HINSTANCE p_hInstance, HINSTANCE p_hPrevInstance, LPSTR p_lp
 	_CrtSetReportMode( _CRT_ERROR, _CRTDBG_MODE_DEBUG );
 #endif
 
+	AllocConsole();
+
 	HRESULT hr = S_OK;
 
 	Raytracer raytracer;

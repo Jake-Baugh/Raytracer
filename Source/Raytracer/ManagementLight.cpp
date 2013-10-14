@@ -36,7 +36,7 @@ HRESULT ManagementLight::init(ID3D11Device* p_device)
 void ManagementLight::initLights()
 {
 	LightDesc light;
-	light.m_position	= DirectX::XMFLOAT3(5.0f, -10.0f, 10.0f);
+	light.m_position	= DirectX::XMFLOAT3(0.0f, -10.0f, 0.0f);
 	light.m_ambient		= DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	light.m_diffuse		= DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	light.m_specular	= DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);

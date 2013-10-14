@@ -5,6 +5,9 @@
 #include "Renderer.h"
 #include "Utility.h"
 #include "KeyCodes.h"
+#include "Timer.h"
+
+#include <iostream>
 
 Raytracer::Raytracer()
 {
@@ -46,6 +49,13 @@ void Raytracer::run()
 
 		old.QuadPart = current.QuadPart;
 	}
+
+	Timer* timer = m_renderer->getTimer();
+
+	std::cout << "Mean time: " << timer->getMeanTime() << std::endl;
+	std::cout << "Max time:  " << timer->getMax() << std::endl;
+	std::cout << "Min time:  " << timer->getMin() << std::endl;
+	std::cin.get();
 }
 
 HRESULT Raytracer::init( HINSTANCE p_hInstance, int p_cmdShow )

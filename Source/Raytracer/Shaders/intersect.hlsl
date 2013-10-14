@@ -111,4 +111,31 @@ bool intersectBox(Ray ray, Node node)
 	return true;
 }
 
+float2 BVH_IntersectBox(float3 vfStart,float3 vfInvDir, Node node) 
+{	
+	float2 T;
+
+	float3 vfDiffMax = node.m_max-vfStart;
+	vfDiffMax *= vfInvDir;
+	float3 vfDiffMin = node.m_min-vfStart;
+	vfDiffMin *= vfInvDir;
+
+	T[0] = min(vfDiffMin.x,vfDiffMax.x);
+	T[1] = max(vfDiffMin.x,vfDiffMax.x);
+
+	T[0] = max(T[0],min(vfDiffMin.y,vfDiffMax.y));
+	T[1] = min(T[1],max(vfDiffMin.y,vfDiffMax.y));
+
+	T[0] = max(T[0],min(vfDiffMin.z,vfDiffMax.z));
+	T[1] = min(T[1],max(vfDiffMin.z,vfDiffMax.z));
+
+	//empty interval
+	if (T[0] > T[1])
+	{
+		T[0] = T[1] = -1.0f;
+	}
+
+	return T;
+}
+
 #endif //RAYTRACER_INTERSECT_HLSL
