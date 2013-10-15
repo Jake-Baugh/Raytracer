@@ -27,7 +27,7 @@ public:
 	Renderer();
 	~Renderer();
 
-	Timer* getTimer();
+	std::vector<Timer*> getTimers();
 
 	void render(
 			DirectX::XMFLOAT4X4 p_viewMatrix,
@@ -71,7 +71,7 @@ private:
 	Rays*				m_rays;
 	Geometry*			m_geometry;
 	Octree*				m_octree;
-	Timer*				m_timer;
+	std::vector<Timer*> m_timers;
 };
 
 #endif //RAYTRACER_RENDERER_H

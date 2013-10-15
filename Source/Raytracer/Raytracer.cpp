@@ -50,11 +50,22 @@ void Raytracer::run()
 		old.QuadPart = current.QuadPart;
 	}
 
-	Timer* timer = m_renderer->getTimer();
+	std::vector<Timer*> timers = m_renderer->getTimers();
 
-	std::cout << "Mean time: " << timer->getMeanTime() << std::endl;
-	std::cout << "Max time:  " << timer->getMax() << std::endl;
-	std::cout << "Min time:  " << timer->getMin() << std::endl;
+	std::cout << "Primary Ray Stage: " << std::endl;
+	std::cout << "Mean time: " << timers[0]->getMeanTime() << std::endl;
+	std::cout << "Max time:  " << timers[0]->getMax() << std::endl;
+	std::cout << "Min time:  " << timers[0]->getMin() << std::endl << std::endl;
+
+	std::cout << "Intersection Stage: " << std::endl;
+	std::cout << "Mean time: " << timers[1]->getMeanTime() << std::endl;
+	std::cout << "Max time:  " << timers[1]->getMax() << std::endl;
+	std::cout << "Min time:  " << timers[1]->getMin() << std::endl << std::endl;
+
+	std::cout << "Color Stage: " << std::endl;
+	std::cout << "Mean time: " << timers[2]->getMeanTime() << std::endl;
+	std::cout << "Max time:  " << timers[2]->getMax() << std::endl;
+	std::cout << "Min time:  " << timers[2]->getMin() << std::endl;
 	std::cin.get();
 }
 

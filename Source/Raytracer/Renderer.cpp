@@ -31,7 +31,6 @@ Renderer::Renderer()
 	m_rays				 = nullptr;
 	m_geometry			 = nullptr;
 	m_octree			 = nullptr;
-	m_timer				 = nullptr;
 }
 Renderer::~Renderer()
 {
@@ -46,12 +45,14 @@ Renderer::~Renderer()
 	SAFE_DELETE( m_rays );
 	SAFE_DELETE( m_geometry );
 	SAFE_DELETE( m_octree );
-	SAFE_DELETE( m_timer );
+	
+	for(unsigned int i=0; i<m_timers.size(); i++)
+		SAFE_DELETE( m_timers[i] );
 }
 
-Timer* Renderer::getTimer()
+std::vector<Timer*> Renderer::getTimers()
 {
-	return m_timer;
+	return m_timers;
 }
 
 void Renderer::render(DirectX::XMFLOAT4X4 p_viewMatrix,
@@ -71,7 +72,6 @@ void Renderer::render(DirectX::XMFLOAT4X4 p_viewMatrix,
 		p_cameraPosition,
 		m_managementLight->getNumLights());
 
-//	m_timer->start(m_managementD3D->getDeviceContext());
 	primaryRayStage();
 	
 	unsigned int rayBounces = 2;
@@ -236,8 +236,12 @@ HRESULT Renderer::initOctree(ID3D11Device* p_device, std::vector<Triangle> p_tri
 HRESULT Renderer::initTimer(ID3D11Device* p_device)
 {
 	HRESULT hr = S_OK;
-	m_timer = new Timer();
-	m_timer->init(p_device);
+	for(unsigned int i=0; i<3; i++)
+	{
+		m_timers.push_back(new Timer());
+		if(SUCCEEDED(hr))
+			hr = m_timers[i]->init(p_device);
+	}
 	return hr;
 }
 
@@ -248,10 +252,10 @@ void Renderer::primaryRayStage()
 	m_rays->csSetRayUAV(context, 0);
 	m_managementD3D->setAccumulationUAV(1);
 
-	m_timer->start(context);
+	m_timers[0]->start(context);
 	context->Dispatch(m_threadCountX, m_threadCountY, 1);
-	m_timer->stop(context);
-	m_timer->getTime(context);
+	m_timers[0]->stop(context);
+	m_timers[0]->getTime(context);
 
 	ID3D11UnorderedAccessView* uav = nullptr;
 	context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
@@ -270,10 +274,10 @@ void Renderer::intersectionStage()
 	m_managementCB->csSetCB(context, CBIds::CBIds_OBJECT);
 	m_managementCB->updateCBObject(context, m_geometry->getNumTriangles());
 
-	m_timer->start(context);
+	m_timers[1]->start(context);
 	context->Dispatch(m_threadCountX, m_threadCountY, 1);
-	m_timer->stop(context);
-	m_timer->getTime(context);
+	m_timers[1]->stop(context);
+	m_timers[1]->getTime(context);
 
 	ID3D11UnorderedAccessView* uav = nullptr;
 	context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
@@ -295,8 +299,11 @@ void Renderer::colorStage()
 	m_octree->csSetNodeSRV(context, 4);
 	m_managementSS->csSetSS(context, ManagementSS::SSTypes_DEFAULT, 0);
 	
+	m_timers[2]->start(context);
 	context->Dispatch(m_threadCountX, m_threadCountY, 1);
-	
+	m_timers[2]->stop(context);
+	m_timers[2]->getTime(context);
+
 	ID3D11UnorderedAccessView* uav = nullptr;
 	context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
 	context->CSSetUnorderedAccessViews(1, 1, &uav, nullptr);
