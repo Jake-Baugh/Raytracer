@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "Node.h"
 #include "Octree.h"
 #include "Utility.h"
@@ -152,14 +154,237 @@ void LinkedNode::subdivide(DirectX::XMFLOAT3 p_min,
 
 bool LinkedNode::triangleIntersect(Triangle p_tri)
 {
-	bool intersect = false;
-	DirectX::XMFLOAT3 pos;
+	DirectX::XMFLOAT3 boxCenter	  = div(add(m_max, m_min), 2);
+	DirectX::XMFLOAT3 boxHalfSize = div(sub(m_max, m_min), 2);
+	
+	//Move everything so that boxCenter is in (0, 0, 0)
+	DirectX::XMFLOAT3 vertex0 = sub(p_tri.vertices[0].m_position, boxCenter);
+	DirectX::XMFLOAT3 vertex1 = sub(p_tri.vertices[1].m_position, boxCenter);
+	DirectX::XMFLOAT3 vertex2 = sub(p_tri.vertices[2].m_position, boxCenter);
+	
+	//Compute triangle edges
+	DirectX::XMFLOAT3 edge0 = sub(vertex1, vertex0);
+	DirectX::XMFLOAT3 edge1 = sub(vertex2, vertex1);
+	DirectX::XMFLOAT3 edge2 = sub(vertex0, vertex2);
+
+	float fex = fabsf(edge0.x);
+	float fey = fabsf(edge0.y);
+	float fez = fabsf(edge0.z);
+	if(axisTestX(edge0.z, edge0.y, fez, fey, vertex0, vertex2, boxHalfSize) == false)
+		return false;
+	if(axisTestY(edge0.z, edge0.x, fez, fex, vertex0, vertex2, boxHalfSize) == false)
+		return false;
+	if(axisTestZ(edge0.y, edge0.x, fey, fex, vertex1, vertex2, boxHalfSize) == false)
+		return false;
+
+	fex = fabsf(edge1.x);
+	fey = fabsf(edge1.y);
+	fez = fabsf(edge1.z);
+	if(axisTestX(edge1.z, edge1.y, fez, fey, vertex0, vertex2, boxHalfSize) == false)
+		return false;
+	if(axisTestY(edge1.z, edge1.x, fez, fex, vertex0, vertex2, boxHalfSize) == false)
+		return false;
+	if(axisTestZ(edge1.y, edge1.x, fey, fex, vertex0, vertex1, boxHalfSize) == false)
+		return false;
+
+	fex = fabsf(edge2.x);
+	fey = fabsf(edge2.y);
+	fez = fabsf(edge2.z);
+	if(axisTestX(edge2.z, edge2.y, fez, fey, vertex0, vertex1, boxHalfSize) == false)
+		return false;
+	if(axisTestY(edge2.z, edge2.x, fez, fex, vertex0, vertex1, boxHalfSize) == false)
+		return false;
+	if(axisTestZ(edge2.y, edge2.x, fey, fex, vertex1, vertex2, boxHalfSize) == false)
+		return false;
+
+	float min, max;
+	findMinMax(vertex0.x, vertex1.x, vertex2.x, min, max);
+	if(min > boxHalfSize.x || max < -boxHalfSize.x)
+		return false;
+
+	findMinMax(vertex0.y, vertex1.y, vertex2.y, min, max);
+	if(min > boxHalfSize.y || max < -boxHalfSize.y)
+		return false;
+
+	findMinMax(vertex0.z, vertex1.z, vertex2.z, min, max);
+	if(min > boxHalfSize.z || max < -boxHalfSize.z)
+		return false;
+
+	DirectX::XMFLOAT3 normal = cross(edge0, edge1);
+	if(planeBoxOverlap(normal, vertex0, boxHalfSize) == false)
+		return false;
+
+	return true;
+}
+
+bool LinkedNode::planeBoxOverlap(DirectX::XMFLOAT3 p_normal, DirectX::XMFLOAT3 p_vert, DirectX::XMFLOAT3 p_maxBox)
+{
+	float normal[3] = {p_normal.x, p_normal.y, p_normal.z};
+	float vert[3]	= {p_vert.x, p_vert.y, p_vert.z};
+	float maxBox[3] = {p_maxBox.x, p_maxBox.y, p_maxBox.z};
+
+	float vMin[3], vMax[3], v;
 	for(unsigned int i=0; i<3; i++)
 	{
-		pos = p_tri.vertices[i].m_position;
-		if(pos.x > m_min.x && pos.y > m_min.y && pos.z > m_min.z &&
-			pos.x < m_max.x && pos.y < m_max.y && pos.z < m_max.z)
-			intersect = true;
+		v = vert[i];
+		if(normal[i] > 0.0f)
+		{
+			vMin[i] = -maxBox[i] - v;
+			vMax[i] = maxBox[i] - v;
+		}
+		else
+		{
+			vMin[i] = maxBox[i] - v;
+			vMax[i] = -maxBox[i] - v;
+		}
 	}
+
+	if(dot(DirectX::XMFLOAT3(normal), DirectX::XMFLOAT3(vMin)) > 0.0f)
+		return false;
+	if(dot(DirectX::XMFLOAT3(normal), DirectX::XMFLOAT3(vMax)) >= 0.0f)
+		return true;
+
+	return false;
+}
+
+bool LinkedNode::axisTestX(float p_a, float p_b, float p_fa, float p_fb,
+							  DirectX::XMFLOAT3 p_v0, DirectX::XMFLOAT3 p_v1, DirectX::XMFLOAT3 p_boxHalfSize)
+{
+	bool intersect = true;
+	float p0, p1, min, max, rad;
+	p0 = p_a*p_v0.y - p_b*p_v0.z;
+	p1 = p_a*p_v1.y - p_b*p_v1.z;
+
+	if(p0<p1)
+	{
+		min = p0;
+		max = p1;
+	}
+	else
+	{
+		min = p1;
+		max = p0;
+	}
+	rad = p_fa * p_boxHalfSize.y + p_fb * p_boxHalfSize.z;
+	if(min>rad || max<-rad)
+		intersect = false;
+
 	return intersect;
+}
+bool LinkedNode::axisTestY(float p_a, float p_b, float p_fa, float p_fb,
+							  DirectX::XMFLOAT3 p_v0, DirectX::XMFLOAT3 p_v1, DirectX::XMFLOAT3 p_boxHalfSize)
+{
+	bool intersect = true;
+	float p0, p1, min, max, rad;
+	p0 = -p_a*p_v0.x + p_b*p_v0.z;
+	p1 = -p_a*p_v1.x + p_b*p_v1.z;
+
+	if(p0<p1)
+	{
+		min = p0;
+		max = p1;
+	}
+	else
+	{
+		min = p1;
+		max = p0;
+	}
+	rad = p_fa * p_boxHalfSize.x + p_fb * p_boxHalfSize.z;
+	if(min>rad || max<-rad)
+		intersect = false;
+
+	return intersect;
+}
+bool LinkedNode::axisTestZ(float p_a, float p_b, float p_fa, float p_fb,
+							  DirectX::XMFLOAT3 p_v0, DirectX::XMFLOAT3 p_v1, DirectX::XMFLOAT3 p_boxHalfSize)
+{
+	bool intersect = true;
+	float p0, p1, min, max, rad;
+	p0 = p_a*p_v0.x - p_b*p_v0.y;
+	p1 = p_a*p_v1.x - p_b*p_v1.y;
+
+	if(p0<p1)
+	{
+		min = p0;
+		max = p1;
+	}
+	else
+	{
+		min = p1;
+		max = p0;
+	}
+	rad = p_fa * p_boxHalfSize.x + p_fb * p_boxHalfSize.y;
+	if(min>rad || max<-rad)
+		intersect = false;
+
+	return intersect;
+}
+
+void LinkedNode::findMinMax(float p_x0, float p_x1, float p_x2, float& io_min, float& io_max)
+{
+	io_min = io_max = p_x0;
+	if(p_x1 < io_min)
+		io_min =  p_x1;
+	if(p_x1 > io_max)
+		io_max = p_x1;
+	if(p_x2 < io_min)
+		io_min =  p_x2;
+	if(p_x2 > io_max)
+		io_max = p_x2;
+}
+
+DirectX::XMFLOAT3 LinkedNode::sub(DirectX::XMFLOAT3 p_v1, DirectX::XMFLOAT3 p_v2)
+{
+	DirectX::XMFLOAT3 res;
+	res.x = p_v1.x - p_v2.x;
+	res.y = p_v1.y - p_v2.y;
+	res.z = p_v1.z - p_v2.z;
+	return res;
+}
+DirectX::XMFLOAT3 LinkedNode::add(DirectX::XMFLOAT3 p_v1, DirectX::XMFLOAT3 p_v2)
+{
+	DirectX::XMFLOAT3 res;
+	res.x = p_v1.x + p_v2.x;
+	res.y = p_v1.y + p_v2.y;
+	res.z = p_v1.z + p_v2.z;
+	return res;
+}
+DirectX::XMFLOAT3 LinkedNode::mul(DirectX::XMFLOAT3 p_v, float p_scalar)
+{
+	DirectX::XMFLOAT3 res;
+	res.x = p_v.x * p_scalar;
+	res.y = p_v.y * p_scalar;
+	res.z = p_v.z * p_scalar;
+	return res;
+}
+DirectX::XMFLOAT3 LinkedNode::div(DirectX::XMFLOAT3 p_v, float p_scalar)
+{
+	DirectX::XMFLOAT3 res;
+	res.x = p_v.x / p_scalar;
+	res.y = p_v.y / p_scalar;
+	res.z = p_v.z / p_scalar;
+	return res;
+}
+
+DirectX::XMFLOAT3 LinkedNode::cross(DirectX::XMFLOAT3 p_v1, DirectX::XMFLOAT3 p_v2)
+{
+	DirectX::XMVECTOR xmV1, xmV2, xmRes;
+	xmV1  = DirectX::XMLoadFloat3(&p_v1);
+	xmV2  = DirectX::XMLoadFloat3(&p_v2);
+	xmRes = DirectX::XMVector3Cross(xmV1, xmV2);
+
+	DirectX::XMFLOAT3 res;
+	DirectX::XMStoreFloat3(&res, xmRes);
+	return res;
+}
+float LinkedNode::dot(DirectX::XMFLOAT3 p_v1, DirectX::XMFLOAT3 p_v2)
+{
+	DirectX::XMVECTOR xmV1, xmV2, xmRes;
+	xmV1  = DirectX::XMLoadFloat3(&p_v1);
+	xmV2  = DirectX::XMLoadFloat3(&p_v2);
+	xmRes = DirectX::XMVector3Dot(xmV1, xmV2);
+
+	DirectX::XMFLOAT3 res;
+	DirectX::XMStoreFloat3(&res, xmRes);
+	return res.x;
 }

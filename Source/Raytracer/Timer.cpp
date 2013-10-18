@@ -45,8 +45,7 @@ double Timer::getTime(ID3D11DeviceContext* p_context)
 		UINT64 delta = endTime - startTime;
 		double frequenzy = static_cast<double>(disjointData.Frequency);
 		time = (delta/frequenzy) * 1000.0f;
-		if(delta > 32)
-			m_times.push_back(time);
+		m_times.push_back(time);
 	}
 
 	return time;

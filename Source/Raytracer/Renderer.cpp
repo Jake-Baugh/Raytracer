@@ -80,9 +80,6 @@ void Renderer::render(DirectX::XMFLOAT4X4 p_viewMatrix,
 		intersectionStage();
 		colorStage();
 	}
-//	m_timer->stop(m_managementD3D->getDeviceContext());
-//	m_timer->getTime(m_managementD3D->getDeviceContext());
-
 	m_managementD3D->present();
 }
 
@@ -200,7 +197,7 @@ HRESULT Renderer::loadObj(ID3D11Device* p_device, ID3D11DeviceContext* p_context
 	HRESULT hr = S_OK;
 
 	ObjLoader objLoader;
-	objLoader.loadObj("../Resources/box4.obj");
+	objLoader.loadObj("../Resources/box3.obj");
 
 	std::vector<Triangle> triangles = objLoader.getLoadedTriangles();
 	std::vector<Mtl> mtls = objLoader.getLoadedMtls();
@@ -252,10 +249,10 @@ void Renderer::primaryRayStage()
 	m_rays->csSetRayUAV(context, 0);
 	m_managementD3D->setAccumulationUAV(1);
 
-	m_timers[0]->start(context);
+//	m_timers[0]->start(context);
 	context->Dispatch(m_threadCountX, m_threadCountY, 1);
-	m_timers[0]->stop(context);
-	m_timers[0]->getTime(context);
+//	m_timers[0]->stop(context);
+//	m_timers[0]->getTime(context);
 
 	ID3D11UnorderedAccessView* uav = nullptr;
 	context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
@@ -299,10 +296,10 @@ void Renderer::colorStage()
 	m_octree->csSetNodeSRV(context, 4);
 	m_managementSS->csSetSS(context, ManagementSS::SSTypes_DEFAULT, 0);
 	
-	m_timers[2]->start(context);
+//	m_timers[2]->start(context);
 	context->Dispatch(m_threadCountX, m_threadCountY, 1);
-	m_timers[2]->stop(context);
-	m_timers[2]->getTime(context);
+//	m_timers[2]->stop(context);
+//	m_timers[2]->getTime(context);
 
 	ID3D11UnorderedAccessView* uav = nullptr;
 	context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);

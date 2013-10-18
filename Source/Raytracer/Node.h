@@ -7,7 +7,7 @@
 #include "Triangle.h"
 
 #define NUM_CHILDREN 8
-#define MAX_NUM_TRIS 15
+#define MAX_NUM_TRIS 10
 
 struct Node
 {
@@ -51,6 +51,25 @@ public:
 		std::vector<Triangle> p_triangles);
 private:
 	bool triangleIntersect(Triangle p_tri);
+	bool planeBoxOverlap(DirectX::XMFLOAT3 p_normal, DirectX::XMFLOAT3 p_vert, DirectX::XMFLOAT3 p_maxBox);
+
+	bool axisTestX(float p_a, float p_b, float p_fa, float p_fb,
+			DirectX::XMFLOAT3 p_v0, DirectX::XMFLOAT3 p_v1, DirectX::XMFLOAT3 p_boxHalfSize); 
+
+	bool axisTestY(float p_a, float p_b, float p_fa, float p_fb,
+			DirectX::XMFLOAT3 p_v0, DirectX::XMFLOAT3 p_v1, DirectX::XMFLOAT3 p_boxHalfSize);
+
+	bool axisTestZ(float p_a, float p_b, float p_fa, float p_fb,
+			DirectX::XMFLOAT3 p_v0, DirectX::XMFLOAT3 p_v1, DirectX::XMFLOAT3 p_boxHalfSize);
+
+	void findMinMax(float p_x0, float p_x1, float p_x2, float& io_min, float& io_max);
+
+	DirectX::XMFLOAT3 sub(DirectX::XMFLOAT3 p_v1, DirectX::XMFLOAT3 p_v2);
+	DirectX::XMFLOAT3 add(DirectX::XMFLOAT3 p_v1, DirectX::XMFLOAT3 p_v2);
+	DirectX::XMFLOAT3 mul(DirectX::XMFLOAT3 p_v1, float p_scalar);
+	DirectX::XMFLOAT3 div(DirectX::XMFLOAT3 p_v1, float p_scalar);
+	DirectX::XMFLOAT3 cross(DirectX::XMFLOAT3 p_v1, DirectX::XMFLOAT3 p_v2);
+	float			  dot(DirectX::XMFLOAT3 p_v1, DirectX::XMFLOAT3 p_v2);
 
 	DirectX::XMFLOAT3 m_min;
 	DirectX::XMFLOAT3 m_max;

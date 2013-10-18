@@ -4,7 +4,7 @@
 #define BLOCK_SIZE_X 16
 #define BLOCK_SIZE_Y 16
 #define NUM_CHILDREN 8
-#define MAX_NUM_TRIS 15
+#define MAX_NUM_TRIS 10
 
 struct Ray
 {
